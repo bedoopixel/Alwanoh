@@ -83,6 +83,7 @@ class HomePageContent extends StatelessWidget {
                   : _buildCategoryRow(),
               _buildNewProductsSection(),
               _buildProductGrid(context, isLargeScreen),
+              _buildLSearchBar(context,isLargeScreen),
             ],
           ),
         );
@@ -278,9 +279,9 @@ class HomePageContent extends StatelessWidget {
     );
   }
 
-  Widget _buildLSearchBar() {
+  Widget _buildLSearchBar(BuildContext context, bool isLargeScreen) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      padding: const EdgeInsets.symmetric(horizontal: 10.0),
       child: TextField(
         onChanged: (query) {
           // Handle search query changes if needed

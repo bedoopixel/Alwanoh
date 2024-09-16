@@ -140,7 +140,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   icon: const FaIcon(FontAwesomeIcons.apple),
                   color: Styles.customColor,
                   onPressed: () {
-                    // Add Apple login logic here
+                   // Navigator.push(context, MaterialPageRoute(builder: (context) => ));
                   },
                 ),
               ],
