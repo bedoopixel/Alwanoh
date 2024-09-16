@@ -83,7 +83,7 @@ class HomePageContent extends StatelessWidget {
                   : _buildCategoryRow(),
               _buildNewProductsSection(),
               _buildProductGrid(context, isLargeScreen),
-              _buildLSearchBar(context,isLargeScreen),
+              // _buildLSearchBar(context,isLargeScreen),
             ],
           ),
         );
