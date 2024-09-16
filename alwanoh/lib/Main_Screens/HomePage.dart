@@ -91,6 +91,140 @@ class HomePageContent extends StatelessWidget {
   }
 
   Widget _buildCustomAppBar(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Check screen size for responsiveness
+        bool isLargeScreen = constraints.maxWidth >= 1920 && constraints.maxHeight >= 1080;
+
+        return Container(
+          color: Colors.black,
+          padding: EdgeInsets.all(isLargeScreen ? 32.0 : 16.0), // Larger padding for bigger screens
+          child: Padding(
+            padding: EdgeInsets.only(top: isLargeScreen ? 50 : 30), // Adjusted padding for larger screens
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Image.asset(
+                      'assets/p1.png',
+                      width: isLargeScreen ? 200 : 125, // Adjust image size
+                      height: isLargeScreen ? 100 : 75, // Adjust image size
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(right: isLargeScreen ? 50 : 30), // Adjust padding
+                      child: Text(
+                        'ALWANOH FOR YEMENI HONEY',
+                        style: TextStyle(
+                          color: Styles.customColor,
+                          fontSize: isLargeScreen ? 24.0 : 16.0, // Adjust text size
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => PersonalScreenWidget(),
+                      ),
+                    );
+                  },
+                  child: CircleAvatar(
+                    backgroundColor: Styles.customColor,
+                    radius: isLargeScreen ? 30 : 20, // Adjust icon size
+                    child: Icon(
+                      Icons.person,
+                      color: Colors.black,
+                      size: isLargeScreen ? 32 : 24, // Adjust icon size
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildSearchBar() {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        bool isLargeScreen = constraints.maxWidth >= 1920 && constraints.maxHeight >= 1080;
+
+        return Padding(
+          padding: EdgeInsets.symmetric(horizontal: isLargeScreen ? 32.0 : 16.0), // Adjust padding
+          child: TextField(
+            onChanged: (query) {
+              // Handle search query changes if needed
+            },
+            style: TextStyle(color: Styles.customColor, fontSize: isLargeScreen ? 20.0 : 14.0), // Adjust font size
+            decoration: InputDecoration(
+              hintText: 'Search...',
+              hintStyle: TextStyle(color: Colors.white54, fontSize: isLargeScreen ? 18.0 : 14.0), // Adjust hint text size
+              prefixIcon: Icon(Icons.search, color: Styles.customColor, size: isLargeScreen ? 32.0 : 24.0), // Adjust icon size
+              filled: true,
+              fillColor: Colors.grey[900],
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12.0),
+                borderSide: BorderSide(color: Styles.customColor, width: 2.0),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12.0),
+                borderSide: BorderSide(color: Styles.customColor, width: 2.0),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12.0),
+                borderSide: BorderSide(color: Styles.customColor, width: 2.0),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+
+  Widget _buildSectionsHeader() {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          Text(
+            'Sections',
+            style: TextStyle(
+              color: Styles.customColor,
+              fontSize: 18.0,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCategoryRow() {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          _buildCategoryContainer('Honey', 'assets/honey.png'),
+          _buildCategoryContainer('Oil', 'assets/oil.png'),
+          _buildCategoryContainer('Nets', 'assets/nets.png'),
+          _buildCategoryContainer('More', 'assets/more.png'),
+        ],
+      ),
+    );
+  }
+
+  // For large screens (1920x1080 or larger)
+  Widget _buildLCustomAppBar(BuildContext context) {
     return Container(
       color: Colors.black,
       padding: const EdgeInsets.all(16.0),
@@ -144,7 +278,7 @@ class HomePageContent extends StatelessWidget {
     );
   }
 
-  Widget _buildSearchBar() {
+  Widget _buildLSearchBar() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: TextField(
@@ -174,42 +308,6 @@ class HomePageContent extends StatelessWidget {
       ),
     );
   }
-
-  Widget _buildSectionsHeader() {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          Text(
-            'Sections',
-            style: TextStyle(
-              color: Styles.customColor,
-              fontSize: 18.0,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCategoryRow() {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          _buildCategoryContainer('Honey', 'assets/honey.png'),
-          _buildCategoryContainer('Oil', 'assets/oil.png'),
-          _buildCategoryContainer('Nets', 'assets/nets.png'),
-          _buildCategoryContainer('More', 'assets/more.png'),
-        ],
-      ),
-    );
-  }
-
-  // For large screens (1920x1080 or larger)
   Widget _buildLargeScreenCategoryRow() {
     return Padding(
       padding: const EdgeInsets.all(8.0),
