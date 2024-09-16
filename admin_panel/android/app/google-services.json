@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "688690750237",
+    "project_id": "alwanoh-store",
+    "storage_bucket": "alwanoh-store.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:688690750237:android:8bac02cd231d9ebfbd37f4",
+        "android_client_info": {
+          "package_name": "com.example.admin_panel"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBZDjvmG3vtQ4AEM4a2_eSS7uiDV7Sytxo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
