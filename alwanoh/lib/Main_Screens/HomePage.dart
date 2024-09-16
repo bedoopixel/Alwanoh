@@ -5,8 +5,7 @@ import '../Product_Pages/Product_Card.dart';
 import '../Product_Pages/Slider_Page.dart';
 import '../Profile_Pages/PersonalScreenWidget.dart';
 import '../Serves/UserProvider.dart';
-import '../Thems/styles.dart';
- // Ensure this path is correct
+import '../Thems/styles.dart'; // Ensure this path is correct
 
 class HomePage extends StatefulWidget {
   @override
@@ -69,12 +68,12 @@ class HomePageContent extends StatelessWidget {
           child: Column(
             children: [
               // Custom Row replacing the AppBar
-              _buildCustomAppBar(context), // Pass context here
-              _buildSearchBar(),
+              _buildCustomAppBar(context),
+              _buildSearchBar(context),
               _buildSectionsHeader(),
-              _buildCategoryRow(),
+              _buildCategoryRow(context),
               _buildNewProductsSection(),
-              _buildProductGrid(context), // Pass context here
+              _buildProductGrid(context),
             ],
           ),
         );
@@ -82,14 +81,15 @@ class HomePageContent extends StatelessWidget {
     );
   }
 
-  // Refactor the methods to receive the context
-
+  // Make custom app bar responsive
   Widget _buildCustomAppBar(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+
     return Container(
       color: Colors.black,
       padding: const EdgeInsets.all(16.0),
       child: Padding(
-        padding: const EdgeInsets.only(top: 30),
+        padding: EdgeInsets.only(top: screenWidth * 0.05),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -97,16 +97,16 @@ class HomePageContent extends StatelessWidget {
               children: [
                 Image.asset(
                   'assets/p1.png',
-                  width: 125,
-                  height: 75,
+                  width: screenWidth * 0.35,
+                  height: screenWidth * 0.21,
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(right: 30),
+                  padding: EdgeInsets.only(left: screenWidth * 0.05),
                   child: Text(
                     'ALWANOH FOR YEMENI HONEY',
                     style: TextStyle(
                       color: Styles.customColor,
-                      fontSize: 16.0,
+                      fontSize: screenWidth * 0.04,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -124,11 +124,11 @@ class HomePageContent extends StatelessWidget {
               },
               child: CircleAvatar(
                 backgroundColor: Styles.customColor,
-                radius: 20,
+                radius: screenWidth * 0.06,
                 child: Icon(
                   Icons.person,
                   color: Colors.black,
-                  size: 24,
+                  size: screenWidth * 0.06,
                 ),
               ),
             ),
@@ -138,9 +138,12 @@ class HomePageContent extends StatelessWidget {
     );
   }
 
-  Widget _buildSearchBar() {
+  // Make search bar responsive
+  Widget _buildSearchBar(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.04),
       child: TextField(
         onChanged: (query) {
           // Handle search query changes if needed
@@ -153,15 +156,15 @@ class HomePageContent extends StatelessWidget {
           filled: true,
           fillColor: Colors.grey[900],
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12.0),
+            borderRadius: BorderRadius.circular(screenWidth * 0.03),
             borderSide: BorderSide(color: Styles.customColor, width: 2.0),
           ),
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12.0),
+            borderRadius: BorderRadius.circular(screenWidth * 0.03),
             borderSide: BorderSide(color: Styles.customColor, width: 2.0),
           ),
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12.0),
+            borderRadius: BorderRadius.circular(screenWidth * 0.03),
             borderSide: BorderSide(color: Styles.customColor, width: 2.0),
           ),
         ),
@@ -169,46 +172,48 @@ class HomePageContent extends StatelessWidget {
     );
   }
 
+  // Sections header
   Widget _buildSectionsHeader() {
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          Text(
-            'Sections',
-            style: TextStyle(
-              color: Styles.customColor,
-              fontSize: 18.0,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ],
+      child: Text(
+        'Sections',
+        style: TextStyle(
+          color: Styles.customColor,
+          fontSize: 18.0,
+          fontWeight: FontWeight.bold,
+        ),
       ),
     );
   }
 
-  Widget _buildCategoryRow() {
+  // Make category row responsive
+  Widget _buildCategoryRow(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+
     return Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: EdgeInsets.all(screenWidth * 0.02),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          _buildCategoryContainer('Honey', 'assets/honey.png'),
-          _buildCategoryContainer('Oil', 'assets/oil.png'),
-          _buildCategoryContainer('Nets', 'assets/nets.png'),
-          _buildCategoryContainer('More', 'assets/more.png'),
+          _buildCategoryContainer(context, 'Honey', 'assets/honey.png'),
+          _buildCategoryContainer(context, 'Oil', 'assets/oil.png'),
+          _buildCategoryContainer(context, 'Nets', 'assets/nets.png'),
+          _buildCategoryContainer(context, 'More', 'assets/more.png'),
         ],
       ),
     );
   }
 
-  Widget _buildCategoryContainer(String label, String assetPath) {
+  // Make category container responsive
+  Widget _buildCategoryContainer(BuildContext context, String label, String assetPath) {
+    double screenWidth = MediaQuery.of(context).size.width;
+
     return Column(
       children: [
         Container(
-          width: 50,
-          height: 50,
+          width: screenWidth * 0.15,
+          height: screenWidth * 0.15,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: Styles.customColor,
@@ -217,14 +222,14 @@ class HomePageContent extends StatelessWidget {
             child: ClipOval(
               child: Image.asset(
                 assetPath,
-                width: 50,
-                height: 50,
+                width: screenWidth * 0.15,
+                height: screenWidth * 0.15,
                 fit: BoxFit.cover,
               ),
             ),
           ),
         ),
-        SizedBox(height: 5),
+        SizedBox(height: screenWidth * 0.02),
         Text(
           label,
           style: TextStyle(color: Styles.customColor),
@@ -233,6 +238,7 @@ class HomePageContent extends StatelessWidget {
     );
   }
 
+  // New products section
   Widget _buildNewProductsSection() {
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -240,9 +246,12 @@ class HomePageContent extends StatelessWidget {
     );
   }
 
+  // Make product grid responsive
   Widget _buildProductGrid(BuildContext context) {
+    double screenHeight = MediaQuery.of(context).size.height;
+
     return SizedBox(
-      height: MediaQuery.of(context).size.height * 0.4,
+      height: screenHeight * 0.4,
       child: ProductGridPage(),
     );
   }
