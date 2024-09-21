@@ -68,7 +68,7 @@ class _ProductGridPageState extends State<ProductGridPage> {
               builder: (context, constraints) {
                 // Adjust grid settings based on screen width
                 int crossAxisCount = constraints.maxWidth > 1200 ? 8 : (constraints.maxWidth > 800 ? 6 : 2);
-                double childAspectRatio = constraints.maxWidth > 1200 ? 0.7 : (constraints.maxWidth > 800 ? 0.80 : 0.65);
+                double childAspectRatio = constraints.maxWidth > 1200 ? 0.6 : (constraints.maxWidth > 800 ? 0.80 : 0.65);
 
                 return GridView.builder(
                   padding: const EdgeInsets.all(10.0),
@@ -132,6 +132,7 @@ class _ProductGridPageState extends State<ProductGridPage> {
                               side: BorderSide(
                                 color: Styles.customColor,
                                 width: 2.0,
+
                               ),
                             ),
                             color: Colors.black,
@@ -153,6 +154,7 @@ class _ProductGridPageState extends State<ProductGridPage> {
                                                 return Padding(
                                                   padding: const EdgeInsets.all(8.0),
                                                   child: Container(
+                                                    height: MediaQuery.of(context).size.height*0.9,
                                                     decoration: BoxDecoration(
                                                       color: Styles.customColor.withOpacity(0.5),
                                                       borderRadius: BorderRadius.circular(15.0),
@@ -165,6 +167,7 @@ class _ProductGridPageState extends State<ProductGridPage> {
                                                           imageUrl,
                                                           fit: BoxFit.cover,
                                                           width: double.infinity,
+                                                          height: MediaQuery.of(context).size.height*0.80,
                                                         ),
                                                       ),
                                                     ),
@@ -217,7 +220,7 @@ class _ProductGridPageState extends State<ProductGridPage> {
                                       ),
                                     ),
                                     Padding(
-                                      padding: const EdgeInsets.all(8.0),
+                                      padding: const EdgeInsets.all(5.0),
                                       child: Row(
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         children: List.generate(imageUrls.length, (dotIndex) {
@@ -228,7 +231,7 @@ class _ProductGridPageState extends State<ProductGridPage> {
                                               final isActive = currentPage.round() == dotIndex;
                                               return Container(
                                                 margin: const EdgeInsets.symmetric(horizontal: 4.0),
-                                                width: isActive ? 12.0 : 8.0,
+                                                width: isActive ? 24.0 : 8.0,
                                                 height: isActive ? 12.0 : 8.0,
                                                 decoration: BoxDecoration(
                                                   color: isActive ? Styles.customColor : Colors.white30,
@@ -255,33 +258,23 @@ class _ProductGridPageState extends State<ProductGridPage> {
                                     ),
                                     Padding(
                                       padding: const EdgeInsets.all(8.0),
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.center,
-                                        children: [
-                                          Text(
+                                      child: LayoutBuilder(
+                                        builder: (context, constraints) {
+                                          double fontSize = 10.0;
+
+                                          if (constraints.maxWidth > 800) {
+                                            fontSize = 10.0; // Increase font size for larger screens
+                                          }
+
+                                          return Text(
                                             name,
-                                            style: const TextStyle(
+                                            style: TextStyle(
                                               color: Colors.white,
                                               fontWeight: FontWeight.bold,
-                                              fontSize: 16.0,
+                                              fontSize: fontSize,
                                             ),
-                                          ),
-                                          const SizedBox(height: 4.0),
-                                          Text(
-                                            type,
-                                            style: const TextStyle(
-                                              color: Colors.white70,
-                                              fontSize: 14.0,
-                                            ),
-                                          ),
-                                          Text(
-                                            ' $quantityTexts',
-                                            style: const TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 14.0,
-                                            ),
-                                          ),
-                                        ],
+                                          );
+                                        },
                                       ),
                                     ),
                                     Container(
