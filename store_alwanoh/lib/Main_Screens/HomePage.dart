@@ -6,7 +6,6 @@ import '../Product_Pages/Slider_Page.dart';
 import '../Profile_Pages/PersonalScreenWidget.dart';
 import '../Serves/UserProvider.dart';
 import '../Thems/styles.dart';
- // Ensure this path is correct
 
 class HomePage extends StatefulWidget {
   @override
@@ -17,9 +16,9 @@ class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
 
   final List<Widget> _pages = [
-    HomePageContent(), // The content of HomePage
-    FavoritePage(), // Add your FavoritePage widget here
-    // CartPage(), // Add your CartPage widget here
+    HomePageContent(),
+    FavoritePage(),
+    Placeholder(), // Placeholder بدلًا من CartPage حتى يتم تنفيذه لاحقاً
   ];
 
   void _onItemTapped(int index) {
@@ -51,7 +50,6 @@ class _HomePageState extends State<HomePage> {
           BottomNavigationBarItem(
             icon: Icon(Icons.shopping_cart),
             label: 'Cart',
-
           ),
         ],
       ),
@@ -62,11 +60,11 @@ class _HomePageState extends State<HomePage> {
 class HomePageContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    // Get screen size
+    // الحصول على حجم الشاشة
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
 
-    // Check if the screen is 1920x1080 or larger
+    // تحديد إذا كانت الشاشة كبيرة
     bool isLargeScreen = screenWidth >= 1920 && screenHeight >= 1080;
 
     return Consumer<UserProvider>(
@@ -75,18 +73,15 @@ class HomePageContent extends StatelessWidget {
 
         return SingleChildScrollView(
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildCustomAppBar(context),
-              _buildSearchBar(),
+              _buildCustomAppBarWithSearchBar(context),
               _buildSectionsHeader(),
               isLargeScreen
                   ? _buildLargeScreenCategoryRow()
                   : _buildCategoryRow(),
               _buildNewProductsSection(),
-              _buildLSearchBar(context,isLargeScreen),
-              _buildLCustomAppBar(context),
               _buildProductGrid(context, isLargeScreen),
-              // _buildLSearchBar(context,isLargeScreen),
             ],
           ),
         );
@@ -94,97 +89,130 @@ class HomePageContent extends StatelessWidget {
     );
   }
 
-  Widget _buildCustomAppBar(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        // Check screen size for responsiveness
 
 
-        return Container(
-          color: Colors.black,
-          padding: EdgeInsets.all( 16.0), // Larger padding for bigger screens
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  // عناصر إضافية بدون تغيير
+  Widget _buildCustomAppBarWithSearchBar(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenH = MediaQuery.of(context).size.height;
+    double fontSize = screenWidth > 600 ? 14.0 : 16.0; // حجم الخط بناءً على حجم الشاشة
+    double iconSize = screenWidth > 600 ? 20.0 : 24.0; // حجم الأيقونة بناءً على حجم الشاشة
+    EdgeInsets padding = screenWidth > 600
+        ? EdgeInsets.symmetric(horizontal: 32.0) // تباعد أكبر للشاشات الكبيرة
+        : EdgeInsets.symmetric(horizontal: 16.0); // تباعد أصغر للشاشات الصغيرة
+
+    // التحكم في عرض شريط البحث
+    double searchBarWidth = screenWidth > 1024 ? screenWidth * 0.2 : screenWidth * 0.9;
+    double searchBarH = screenH > 1024 ? screenH * 0.2 : screenH * 0.9;
+    double containerWidth = screenWidth > 1024 ? screenWidth * 0.75 : screenWidth;
+
+    return Container(
+      color: Colors.black,
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        children: [
+          // شريط التطبيق (AppBar)
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  Image.asset(
-                    'assets/p1.png',
-                    width:125, // Adjust image size
-                    height:  75, // Adjust image size
-                  ),
-                  Text(
-                    'ALWANOH  YEMENI HONEY',
-                    style: TextStyle(
-                      color: Styles.customColor,
-                      fontSize:  16.0, // Adjust text size
-                      fontWeight: FontWeight.bold,
+              Container(
+                width: containerWidth,
+                
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
+                      children: [
+                        const Padding(
+                          padding: EdgeInsets.only(top: 200.0),
+                          child: Image(
+                            image: AssetImage(
+                              'assets/p1.png',
+                            ),
+                            fit: BoxFit.contain,
+                            width: 250,
+                            height: 250,
+                          ),
+                        ),
+                        Text(
+                          'ALWANOH  YEMENI HONEY',
+                          style: TextStyle(
+                            color: Styles.customColor,
+                            fontSize: 16.0,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                ],
+                    SizedBox(width: 10), // مسافة بين الشعار والنص
+
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => PersonalScreenWidget(),
+                          ),
+                        );
+                      },
+                      child: CircleAvatar(
+                        backgroundColor: Styles.customColor,
+                        radius: 20,
+                        child: Icon(
+                          Icons.person,
+                          color: Colors.black,
+                          size: 24,
+                        ),
+                      ),
+                    ),
+
+                  ],
+                ),
               ),
-              GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => PersonalScreenWidget(),
+              SizedBox(width: 10,),
+              ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxWidth: searchBarWidth, // تحديد العرض بناءً على حجم الشاشة
+                  maxHeight: 45,
+                ),
+                child: TextField(
+                  onChanged: (query) {
+                    // التعامل مع إدخال البحث
+                  },
+                  style: TextStyle(color: Styles.customColor, fontSize: fontSize),
+                  decoration: InputDecoration(
+                    hintText: 'Search...',
+                    hintStyle: TextStyle(color: Colors.white54, fontSize: fontSize),
+                    prefixIcon: Icon(Icons.search, color: Styles.customColor, size: iconSize),
+                    filled: true,
+                    fillColor: Colors.grey[900],
+                    border: OutlineInputBorder(
+                      borderSide: BorderSide(color: Styles.customColor,),
+                      borderRadius: BorderRadius.circular(10),
                     ),
-                  );
-                },
-                child: CircleAvatar(
-                  backgroundColor: Styles.customColor,
-                  radius:  20, // Adjust icon size
-                  child: Icon(
-                    Icons.person,
-                    color: Colors.black,
-                    size: 24, // Adjust icon size
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Styles.customColor,),
+                      borderRadius: BorderRadius.circular(10),
+                ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Styles.customColor,),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
                   ),
                 ),
               ),
+
             ],
           ),
-        );
-      },
+          // مسافة بين شريط التطبيق وشريط البحث
+          // شريط البحث المتجاوب
+        ],
+      ),
     );
   }
 
-  Widget _buildSearchBar() {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        bool isLargeScreen = constraints.maxWidth >= 1920 && constraints.maxHeight >= 1080;
-
-        return Padding(
-          padding: EdgeInsets.symmetric(horizontal: isLargeScreen ? 32.0 : 16.0), // Adjust padding
-          child: TextField(
-            onChanged: (query) {
-              // Handle search query changes if needed
-            },
-            style: TextStyle(color: Styles.customColor, fontSize: isLargeScreen ? 20.0 : 14.0), // Adjust font size
-            decoration: InputDecoration(
-              hintText: 'Search...',
-              hintStyle: TextStyle(color: Colors.white54, fontSize: isLargeScreen ? 18.0 : 14.0), // Adjust hint text size
-              prefixIcon: Icon(Icons.search, color: Styles.customColor, size: isLargeScreen ? 32.0 : 24.0), // Adjust icon size
-              filled: true,
-              fillColor: Colors.grey[900],
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12.0),
-                borderSide: BorderSide(color: Styles.customColor, width: 2.0),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12.0),
-                borderSide: BorderSide(color: Styles.customColor, width: 2.0),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12.0),
-                borderSide: BorderSide(color: Styles.customColor, width: 2.0),
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
 
 
   Widget _buildSectionsHeader() {
@@ -221,91 +249,6 @@ class HomePageContent extends StatelessWidget {
     );
   }
 
-  // For large screens (1920x1080 or larger)
-  Widget _buildLCustomAppBar(BuildContext context) {
-    return Container(
-      color: Colors.black,
-      padding: const EdgeInsets.all(16.0),
-      child: Padding(
-        padding: const EdgeInsets.only(top: 30),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children: [
-                Image.asset(
-                  'assets/p1.png',
-                  width: 125,
-                  height: 75,
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(right: 30),
-                  child: Text(
-                    'ALWANOH  YEMENI HONEY',
-                    style: TextStyle(
-                      color: Styles.customColor,
-                      fontSize: 16.0,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => PersonalScreenWidget(),
-                  ),
-                );
-              },
-              child: CircleAvatar(
-                backgroundColor: Styles.customColor,
-                radius: 20,
-                child: Icon(
-                  Icons.person,
-                  color: Colors.black,
-                  size: 24,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLSearchBar(BuildContext context, bool isLargeScreen) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10.0),
-      child: TextField(
-        onChanged: (query) {
-          // Handle search query changes if needed
-        },
-        style: TextStyle(color: Styles.customColor),
-        decoration: InputDecoration(
-          hintText: 'Search...',
-          hintStyle: TextStyle(color: Colors.white54),
-          prefixIcon: Icon(Icons.search, color: Styles.customColor),
-          filled: true,
-          fillColor: Colors.grey[900],
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12.0),
-            borderSide: BorderSide(color: Styles.customColor, width: 2.0),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12.0),
-            borderSide: BorderSide(color: Styles.customColor, width: 2.0),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12.0),
-            borderSide: BorderSide(color: Styles.customColor, width: 2.0),
-          ),
-        ),
-      ),
-    );
-  }
   Widget _buildLargeScreenCategoryRow() {
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -369,4 +312,3 @@ class HomePageContent extends StatelessWidget {
     );
   }
 }
-
