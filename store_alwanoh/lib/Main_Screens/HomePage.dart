@@ -83,6 +83,8 @@ class HomePageContent extends StatelessWidget {
                   ? _buildLargeScreenCategoryRow()
                   : _buildCategoryRow(),
               _buildNewProductsSection(),
+              _buildLSearchBar(context,isLargeScreen),
+              _buildLCustomAppBar(context),
               _buildProductGrid(context, isLargeScreen),
               // _buildLSearchBar(context,isLargeScreen),
             ],
@@ -96,57 +98,51 @@ class HomePageContent extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         // Check screen size for responsiveness
-        bool isLargeScreen = constraints.maxWidth >= 1920 && constraints.maxHeight >= 1080;
+
 
         return Container(
           color: Colors.black,
-          padding: EdgeInsets.all(isLargeScreen ? 32.0 : 16.0), // Larger padding for bigger screens
-          child: Padding(
-            padding: EdgeInsets.only(top: isLargeScreen ? 50 : 30), // Adjusted padding for larger screens
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    Image.asset(
-                      'assets/p1.png',
-                      width: isLargeScreen ? 200 : 125, // Adjust image size
-                      height: isLargeScreen ? 100 : 75, // Adjust image size
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(right: isLargeScreen ? 50 : 30), // Adjust padding
-                      child: Text(
-                        'ALWANOH FOR YEMENI HONEY',
-                        style: TextStyle(
-                          color: Styles.customColor,
-                          fontSize: isLargeScreen ? 24.0 : 16.0, // Adjust text size
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => PersonalScreenWidget(),
-                      ),
-                    );
-                  },
-                  child: CircleAvatar(
-                    backgroundColor: Styles.customColor,
-                    radius: isLargeScreen ? 30 : 20, // Adjust icon size
-                    child: Icon(
-                      Icons.person,
-                      color: Colors.black,
-                      size: isLargeScreen ? 32 : 24, // Adjust icon size
+          padding: EdgeInsets.all( 16.0), // Larger padding for bigger screens
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Image.asset(
+                    'assets/p1.png',
+                    width:125, // Adjust image size
+                    height:  75, // Adjust image size
+                  ),
+                  Text(
+                    'ALWANOH  YEMENI HONEY',
+                    style: TextStyle(
+                      color: Styles.customColor,
+                      fontSize:  16.0, // Adjust text size
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
+                ],
+              ),
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => PersonalScreenWidget(),
+                    ),
+                  );
+                },
+                child: CircleAvatar(
+                  backgroundColor: Styles.customColor,
+                  radius:  20, // Adjust icon size
+                  child: Icon(
+                    Icons.person,
+                    color: Colors.black,
+                    size: 24, // Adjust icon size
+                  ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         );
       },
@@ -245,7 +241,7 @@ class HomePageContent extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(right: 30),
                   child: Text(
-                    'ALWANOH FOR YEMENI HONEY',
+                    'ALWANOH  YEMENI HONEY',
                     style: TextStyle(
                       color: Styles.customColor,
                       fontSize: 16.0,
