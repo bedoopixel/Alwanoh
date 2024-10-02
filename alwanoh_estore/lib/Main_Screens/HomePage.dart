@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../Cart/CartPage.dart';
 import '../Favorite/FavoritesPage.dart';
 import '../Product_Pages/Product_Card.dart';
+import '../Product_Pages/ProductsPage.dart';
 import '../Product_Pages/Slider_Page.dart';
 import '../Profile_Pages/PersonalScreenWidget.dart';
 import '../Serves/UserProvider.dart';
@@ -286,10 +287,38 @@ class _HomePageContentState extends State<HomePageContent> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          _buildCategoryContainer('Honey', 'assets/honey.png'),
-          _buildCategoryContainer('Oil', 'assets/oil.png'),
-          _buildCategoryContainer('Nets', 'assets/nets.png'),
-          _buildCategoryContainer('More', 'assets/more.png'),
+          _buildCategoryContainer('Honey', 'assets/honey.png', () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ProductsPage(category: 'Honey'),
+              ),
+            );
+          }),
+          _buildCategoryContainer('Oil', 'assets/oil.png', () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ProductsPage(category: 'Oil'),
+              ),
+            );
+          }),
+          _buildCategoryContainer('Nets', 'assets/nets.png', () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ProductsPage(category: 'Nets'),
+              ),
+            );
+          }),
+          _buildCategoryContainer('More', 'assets/more.png', () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ProductsPage(category: 'More'),
+              ),
+            );
+          }),
         ],
       ),
     );
@@ -301,12 +330,55 @@ class _HomePageContentState extends State<HomePageContent> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          _buildCategoryContainer('Honey', 'assets/honey.png'),
-          _buildCategoryContainer('Oil', 'assets/oil.png'),
-          _buildCategoryContainer('Nets', 'assets/nets.png'),
-          _buildCategoryContainer('More', 'assets/more.png'),
-          _buildCategoryContainer('Accessories', 'assets/accessories.png'),
-          _buildCategoryContainer('Tools', 'assets/tools.png'),
+
+          _buildCategoryContainer('Honey', 'assets/honey.png', () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ProductsPage(category: 'Honey'),
+              ),
+            );
+          }),
+          _buildCategoryContainer('Oil', 'assets/oil.png', () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ProductsPage(category: 'Oil'),
+              ),
+            );
+          }),
+          _buildCategoryContainer('Nets', 'assets/nets.png', () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ProductsPage(category: 'Nets'),
+              ),
+            );
+          }),
+          _buildCategoryContainer('More', 'assets/more.png', () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ProductsPage(category: 'More'),
+              ),
+            );
+          }),
+          _buildCategoryContainer('Accessories', 'assets/accessories.png', () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ProductsPage(category: 'Accessories'),
+              ),
+            );
+          }),
+          _buildCategoryContainer('Tools', 'assets/tools.png', () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ProductsPage(category: 'Tools'),
+              ),
+            );
+          }),
         ],
       ),
     );
@@ -328,33 +400,23 @@ class _HomePageContentState extends State<HomePageContent> {
     );
   }
 
-  Widget _buildCategoryContainer(String label, String assetPath) {
-    return Column(
-      children: [
-        Container(
-          width: 50,
-          height: 50,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: Styles.customColor,
+  Widget _buildCategoryContainer(String title, String imagePath, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        children: [
+          Image.asset(
+            imagePath,
+            width: 50,
+            height: 50,
           ),
-          child: Center(
-            child: ClipOval(
-              child: Image.asset(
-                assetPath,
-                width: 50,
-                height: 50,
-                fit: BoxFit.cover,
-              ),
-            ),
+          SizedBox(height: 5),
+          Text(
+            title,
+            style: TextStyle(color: Styles.customColor, fontSize: 14.0),
           ),
-        ),
-        SizedBox(height: 5),
-        Text(
-          label,
-          style: TextStyle(color: Styles.customColor),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

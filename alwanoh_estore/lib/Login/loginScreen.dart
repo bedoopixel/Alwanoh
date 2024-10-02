@@ -319,6 +319,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   }
 
   // Sign Up method
+// Sign Up method with email verification logic
   Future<void> _signup() async {
     if (_formSignupKey.currentState!.validate()) {
       setState(() {
@@ -335,22 +336,25 @@ class _SignUpScreenState extends State<SignUpScreen> {
         // Send email verification
         if (userCredential.user != null && !userCredential.user!.emailVerified) {
           await userCredential.user!.sendEmailVerification();
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('A verification email has been sent. Please check your inbox.'),
+
+          // Show verification dialog
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) => AlertDialog(
+              title: Text('Email Verification Required'),
+              content: Text(
+                  'A verification email has been sent to your email. Please verify your email and click "Continue" once verified.'),
+              actions: [
+                TextButton(
+                  onPressed: () async {
+                    await _checkEmailVerified(userCredential.user!);
+                  },
+                  child: Text('Continue'),
+                ),
+              ],
             ),
           );
-        }
-
-        // Upload profile image if selected
-        String imageUrl = '';
-        if (_imageFile != null) {
-          final ref = FirebaseStorage.instance
-              .ref()
-              .child('user_images')
-              .child('${userCredential.user!.uid}.jpg');
-          await ref.putFile(File(_imageFile!.path));
-          imageUrl = await ref.getDownloadURL();
         }
 
         // Save user details to Firestore
@@ -362,24 +366,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
           'email': emailcontroller.text.trim(),
           'phone': phoneController.text.trim(),
           'document': _selectedDocument,
-          'imageUrl': imageUrl,
+          'imageUrl': '', // Assume image is optional or default
           'createdAt': FieldValue.serverTimestamp(),
         });
 
-        // Sign out the user after registration
-        await FirebaseAuth.instance.signOut();
-
-        // Show a dialog or alert asking the user to verify their email before logging in
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Please verify your email before logging in.'),
-          ),
-        );
-
-        // Redirect the user to the sign-in screen
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const SignInScreen()),
-        );
       } on FirebaseAuthException catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(e.message ?? 'Error occurred')),
@@ -391,6 +381,27 @@ class _SignUpScreenState extends State<SignUpScreen> {
       }
     }
   }
+
+// Method to check if the email is verified
+  Future<void> _checkEmailVerified(User user) async {
+    // Periodically check if the email is verified
+    bool emailVerified = false;
+    while (!emailVerified) {
+      await user.reload(); // Reload user to check the verification status
+      user = FirebaseAuth.instance.currentUser!;
+      emailVerified = user.emailVerified;
+
+      if (!emailVerified) {
+        await Future.delayed(Duration(seconds: 3)); // Wait for 3 seconds before checking again
+      }
+    }
+
+    // If email is verified, navigate to the HomePage
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (context) => HomePage()),
+    );
+  }
+
 
 
   // Google Sign-In method
