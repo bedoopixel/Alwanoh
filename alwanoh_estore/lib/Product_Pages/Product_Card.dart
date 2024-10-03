@@ -20,6 +20,7 @@ class _ProductGridPageState extends State<ProductGridPage> {
   Widget build(BuildContext context) {
     final selectedDocument = context.watch<UserProvider>().selectedDocument;
     final userId = context.watch<UserProvider>().userId;
+    var searchQuery = widget.searchQuery.toLowerCase();
 
     if (selectedDocument == null) {
       return const Center(child: Text('No document selected', style: TextStyle(color: Styles.customColor)));
@@ -67,9 +68,12 @@ class _ProductGridPageState extends State<ProductGridPage> {
                 'type': 'Honey',
               }));
 
-            final filteredProducts = allProducts;
+            final filteredProducts = allProducts.where((product) {
+              final name = (product['name'] as String).toLowerCase();
+              return name.contains(searchQuery); // Filter logic
+            }).toList();
 
-            return LayoutBuilder(
+              return LayoutBuilder(
               builder: (context, constraints) {
                 int crossAxisCount = constraints.maxWidth > 1200 ? 8 : (constraints.maxWidth > 767 ? 5 : 2);
                 double childAspectRatio = constraints.maxWidth > 1024 ? 0.65 : (constraints.maxWidth > 767 ? 0.65 : 0.65);
