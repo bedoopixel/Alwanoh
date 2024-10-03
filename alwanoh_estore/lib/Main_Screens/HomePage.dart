@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -16,6 +17,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+
   int _selectedIndex = 0;
 
   final List<Widget> _pages = [
@@ -31,17 +33,14 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+
+
   @override
   Widget build(BuildContext context) {
-    // احصل على عرض الشاشة
-    final screenWidth = MediaQuery.of(context).size.width;
-
     return Scaffold(
       backgroundColor: Colors.black,
       body: _pages[_selectedIndex],
-      // تحقق من عرض الشاشة لإظهار أو إخفاء شريط التنقل السفلي
-      bottomNavigationBar: screenWidth <= 1200
-          ? BottomNavigationBar(
+      bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed, // Ensure the background color is applied
         backgroundColor: Colors.black,  // This sets the background to black
         selectedItemColor: Styles.customColor,
@@ -66,12 +65,11 @@ class _HomePageState extends State<HomePage> {
             label: 'Profile',
           ),
         ],
-      )
-          : null, // إخفاء شريط التنقل إذا كان العرض أكبر من 1200 بكسل
+      ),
+
     );
   }
 }
-
 
 
 class HomePageContent extends StatefulWidget {
@@ -85,16 +83,26 @@ class HomePageContent extends StatefulWidget {
 }
 
 class _HomePageContentState extends State<HomePageContent> {
-  late String? _imageUrl; // Local variable to hold imageUrl
-
+  late String? _imageUrl;
+  List<Map<String, dynamic>> _products = [];
+  String _searchQuery = "";// Local variable to hold imageUrl
   @override
   void initState() {
     super.initState();
+    _loadProducts(); // Load products when the widget is initialized
+
     _imageUrl = widget.imageUrl; // Initialize with the passed imageUrl
     if (_imageUrl == null) {
       _loadImage(); // Load image only if it's not passed
     }
   }
+  Future<void> _loadProducts() async {
+    final products = await fetchAllProducts();
+    setState(() {
+      _products = products.take(4).toList(); // Limit to first 4 products
+    });
+  }
+
 
   Future<void> _loadImage() async {
     try {
@@ -109,36 +117,72 @@ class _HomePageContentState extends State<HomePageContent> {
       print('Error fetching image from Firebase Storage: $e');
     }
   }
-
   @override
   Widget build(BuildContext context) {
-    // الحصول على حجم الشاشة
+    // Get the size of the screen
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
 
-    // تحديد إذا كانت الشاشة كبيرة
+    // Determine if it's a large screen
     bool isLargeScreen = screenWidth >= 1920 && screenHeight >= 1080;
 
     return Consumer<UserProvider>(
       builder: (context, userProvider, child) {
         String selectedDocument = userProvider.selectedDocument ?? '';
 
-        return SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildCustomAppBarWithSearchBar(context),
-              isLargeScreen
-                  ? _buildLargeScreenCategoryRow()
-                  : _buildCategoryRow(),
-              _buildNewProductsSection(),
-              _buildProductGrid(context, isLargeScreen),
-            ],
-          ),
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Always display the app bar and search field
+            _buildCustomAppBarWithSearchBar(context),
+            _buildSectionsHeader(),
+            isLargeScreen
+                ? _buildLargeScreenCategoryRow()
+                : _buildCategoryRow(),
+
+            // Wrap the main content in an Expanded widget to occupy remaining space
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+
+
+                    // Display the appropriate content based on the search query
+                    if (_searchQuery.isNotEmpty)
+                      SizedBox(
+                        height: screenHeight * 0.8, // Adjust grid height to fit screen
+                        child: _buildProductGrid(context, isLargeScreen),
+                      )
+                    else
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+
+                          _buildNewProductsSection(),
+                          SizedBox(
+                            height: screenHeight * 0.8, // Adjust grid height to fit screen
+                            child: _buildProductGrid(context, isLargeScreen),
+                          ),
+                          _buildShowMoreRow(context),
+                        ],
+                      ),
+                  ],
+                ),
+              ),
+            ),
+
+            // Add the Show More Row here outside the SingleChildScrollView
+
+          ],
         );
       },
     );
+
   }
+
+
+
 
   Widget _buildCustomAppBarWithSearchBar(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
@@ -192,78 +236,36 @@ class _HomePageContentState extends State<HomePageContent> {
                         ),
 
                         SizedBox(width: 10),
-                        Container(
-                          width: MediaQuery.of(context).size.width <= 600 ? 150.0 : null,
-                          child: Text(
-                            'ALWANOH FOR YEMENI HONEY',
-                            style: TextStyle(
-                              color: Styles.customColor,
-                              fontSize: 18.0,
-                              fontWeight: FontWeight.bold,
-                            ),
+                        Text(
+                          'ALWANOH  YEMENI HONEY',
+                          style: TextStyle(
+                            color: Styles.customColor,
+                            fontSize: 16.0,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ],
                     ),
-
-                    Center(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          if (screenWidth >= 1200) ...[
-                            SizedBox(width: 10),
-                            // أيقونة المفضلة
-                            IconButton(
-                              icon: Icon(Icons.favorite, color: Styles.customColor, size: 40),
-                              onPressed: () {
-                                // انتقل إلى صفحة المفضلة
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => FavoritePage(),
-                                  ),
-                                );
-                              },
-                            ),
-                            // أيقونة السلة
-                            IconButton(
-                              icon: Icon(Icons.shopping_cart, color: Styles.customColor, size: 40),
-                              onPressed: () {
-                                // انتقل إلى صفحة السلة
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => CartPage(),
-                                  ),
-                                );
-                              },
-                            ),
-                          ],
-                          // أيقونة الملف الشخصي
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => PersonalScreenWidget(),
-                                ),
-                              );
-                            },
-                            child: CircleAvatar(
-                              backgroundColor: Styles.customColor,
-                              radius: 20,
-                              child: Icon(
-                                Icons.person,
-                                color: Colors.black,
-                                size: 24, // تغيير الحجم إلى 24
-                              ),
-                            ),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => PersonalScreenWidget(),
                           ),
-                        ],
+                        );
+                      },
+                      child: CircleAvatar(
+                        backgroundColor: Styles.customColor,
+                        radius: 20,
+                        child: Icon(
+                          Icons.person,
+                          color: Colors.black,
+                          size: 24,
+                        ),
                       ),
                     ),
                   ],
-
                 ),
               ),
 
@@ -276,7 +278,9 @@ class _HomePageContentState extends State<HomePageContent> {
                   ),
                   child: TextField(
                     onChanged: (query) {
-                      // التعامل مع إدخال البحث
+                      setState(() {
+                        _searchQuery = query; // Update the search query
+                      });
                     },
                     style: TextStyle(color: Styles.customColor, fontSize: fontSize),
                     decoration: InputDecoration(
@@ -308,7 +312,24 @@ class _HomePageContentState extends State<HomePageContent> {
     );
   }
 
-
+  Widget _buildSectionsHeader() {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          Text(
+            'Sections',
+            style: TextStyle(
+              color: Styles.customColor,
+              fontSize: 18.0,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _buildCategoryRow() {
     return Padding(
@@ -316,13 +337,14 @@ class _HomePageContentState extends State<HomePageContent> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-
-          _buildCategoryContainer('Honey', 'assets/honey.png'),
-          _buildCategoryContainer('Oil', 'assets/oil.png'),
-          _buildCategoryContainer('Nets', 'assets/nets.png'),
-          _buildCategoryContainer('More', 'assets/more.png'),
-
-
+          _buildCategoryContainer('All', 'assets/honey.png', () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ProductsPage(category: 'YourCategoryName', ),
+              ),
+            );
+          }),
           _buildCategoryContainer('Honey', 'assets/honey.png', () {
             Navigator.push(
               context,
@@ -355,11 +377,11 @@ class _HomePageContentState extends State<HomePageContent> {
               ),
             );
           }),
-
         ],
       ),
     );
   }
+
 
   Widget _buildLargeScreenCategoryRow() {
     return Padding(
@@ -367,14 +389,6 @@ class _HomePageContentState extends State<HomePageContent> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-
-          _buildCategoryContainer('Honey', 'assets/honey.png'),
-          _buildCategoryContainer('Oil', 'assets/oil.png'),
-          _buildCategoryContainer('Nets', 'assets/nets.png'),
-          _buildCategoryContainer('More', 'assets/more.png'),
-
-
-
 
           _buildCategoryContainer('Honey', 'assets/honey.png', () {
             Navigator.push(
@@ -438,13 +452,46 @@ class _HomePageContentState extends State<HomePageContent> {
 
   Widget _buildProductGrid(BuildContext context, bool isLargeScreen) {
     return SizedBox(
-      height: isLargeScreen
-          ? MediaQuery.of(context).size.height * 0.6
-          : MediaQuery.of(context).size.height * 0.4,
-      child: ProductGridPage(),
+      height: MediaQuery.of(context).size.height,
+      child: ProductGridPage(searchQuery: _searchQuery, products: _products,),
+      // Pass the search query
     );
 
   }
+  // Add this new method in the _HomePageContentState class
+  Widget _buildShowMoreRow(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ProductsPage(category: 'Oil',), // Navigate to ProductsPage
+          ),
+        );
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'Show More',
+              style: TextStyle(
+                color: Styles.customColor,
+                fontSize: 16.0,
+              ),
+            ),
+            SizedBox(width: 8), // Spacing between text and icon
+            Icon(
+              Icons.arrow_forward, // Arrow icon
+              color: Styles.customColor,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
 
   Widget _buildCategoryContainer(String title, String imagePath, VoidCallback onTap) {
     return GestureDetector(
@@ -464,5 +511,47 @@ class _HomePageContentState extends State<HomePageContent> {
         ],
       ),
     );
+  }
+
+  Future<List<Map<String, dynamic>>> fetchAllProducts() async {
+    final selectedDocument = context.read<UserProvider>().selectedDocument;
+
+    if (selectedDocument == null) {
+      return [];
+    }
+
+    List<Map<String, dynamic>> allProducts = [];
+
+    // Fetch Oil products
+    final oilSnapshot = await FirebaseFirestore.instance
+        .collection('Product')
+        .doc(selectedDocument)
+        .collection('Oil')
+        .get();
+
+    for (var doc in oilSnapshot.docs) {
+      allProducts.add({
+        ...doc.data() as Map<String, dynamic>,
+        'id': doc.id,
+        'type': 'Oil',
+      });
+    }
+
+    // Fetch Honey products
+    final honeySnapshot = await FirebaseFirestore.instance
+        .collection('Product')
+        .doc(selectedDocument)
+        .collection('Honey')
+        .get();
+
+    for (var doc in honeySnapshot.docs) {
+      allProducts.add({
+        ...doc.data() as Map<String, dynamic>,
+        'id': doc.id,
+        'type': 'Honey',
+      });
+    }
+
+    return allProducts;
   }
 }

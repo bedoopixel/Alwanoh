@@ -7,6 +7,10 @@ import '../Thems/styles.dart';
 import '../Serves/UserProvider.dart';
 
 class ProductGridPage extends StatefulWidget {
+  final String searchQuery;
+  final List<Map<String, dynamic>> products;// Add searchQuery as a parameter
+
+  ProductGridPage({required this.products, required this.searchQuery});
   @override
   _ProductGridPageState createState() => _ProductGridPageState();
 }
@@ -72,6 +76,8 @@ class _ProductGridPageState extends State<ProductGridPage> {
 
 
                 return GridView.builder(
+                  shrinkWrap: true,
+                  physics: ScrollPhysics(),
                   padding: const EdgeInsets.all(10.0),
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: crossAxisCount,
@@ -79,7 +85,7 @@ class _ProductGridPageState extends State<ProductGridPage> {
                     mainAxisSpacing: 10.0,
                     childAspectRatio: childAspectRatio,
                   ),
-                  itemCount: filteredProducts.length,
+                  itemCount: filteredProducts.length > 4 ? 4 : filteredProducts.length,
                   itemBuilder: (context, index) {
                     final product = filteredProducts[index];
                     final List<String> imageUrls = [
