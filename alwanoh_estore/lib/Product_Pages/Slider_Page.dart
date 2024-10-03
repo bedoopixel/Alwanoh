@@ -128,7 +128,7 @@ class _NewProductsPageState extends State<NewProductsPage> {
 
   double _getCarouselHeight() {
     final width = MediaQuery.of(context).size.width;
-    if (width >= 1200) return 660.0;
+    if (width >= 1200) return 680.0;
     if (width >= 992) return 500.0;
     if (width >= 600) return 350.0;
     return 200.0;
