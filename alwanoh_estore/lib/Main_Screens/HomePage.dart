@@ -226,7 +226,7 @@ class _HomePageContentState extends State<HomePageContent> {
                             ),
                             // أيقونة السلة
                             IconButton(
-                              icon: Icon(Icons.shopping_cart, color: Styles.customColor, size: 40),   
+                              icon: Icon(Icons.shopping_cart, color: Styles.customColor, size: 40),
                               onPressed: () {
                                 // انتقل إلى صفحة السلة
                                 Navigator.push(
