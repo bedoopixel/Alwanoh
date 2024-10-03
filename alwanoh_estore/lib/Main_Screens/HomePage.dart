@@ -15,7 +15,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-
   int _selectedIndex = 0;
 
   final List<Widget> _pages = [
@@ -33,10 +32,15 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    // احصل على عرض الشاشة
+    final screenWidth = MediaQuery.of(context).size.width;
+
     return Scaffold(
       backgroundColor: Colors.black,
       body: _pages[_selectedIndex],
-      bottomNavigationBar: BottomNavigationBar(
+      // تحقق من عرض الشاشة لإظهار أو إخفاء شريط التنقل السفلي
+      bottomNavigationBar: screenWidth <= 1200
+          ? BottomNavigationBar(
         type: BottomNavigationBarType.fixed, // Ensure the background color is applied
         backgroundColor: Colors.black,  // This sets the background to black
         selectedItemColor: Styles.customColor,
@@ -61,11 +65,12 @@ class _HomePageState extends State<HomePage> {
             label: 'Profile',
           ),
         ],
-      ),
-
+      )
+          : null, // إخفاء شريط التنقل إذا كان العرض أكبر من 1200 بكسل
     );
   }
 }
+
 
 
 class HomePageContent extends StatefulWidget {
@@ -122,7 +127,6 @@ class _HomePageContentState extends State<HomePageContent> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildCustomAppBarWithSearchBar(context),
-              _buildSectionsHeader(),
               isLargeScreen
                   ? _buildLargeScreenCategoryRow()
                   : _buildCategoryRow(),
@@ -187,36 +191,78 @@ class _HomePageContentState extends State<HomePageContent> {
                         ),
 
                         SizedBox(width: 10),
-                        Text(
-                          'ALWANOH  YEMENI HONEY',
-                          style: TextStyle(
-                            color: Styles.customColor,
-                            fontSize: 16.0,
-                            fontWeight: FontWeight.bold,
+                        Container(
+                          width: MediaQuery.of(context).size.width <= 600 ? 150.0 : null,
+                          child: Text(
+                            'ALWANOH FOR YEMENI HONEY',
+                            style: TextStyle(
+                              color: Styles.customColor,
+                              fontSize: 18.0,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                       ],
                     ),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => PersonalScreenWidget(),
+
+                    Center(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          if (screenWidth >= 1200) ...[
+                            SizedBox(width: 10),
+                            // أيقونة المفضلة
+                            IconButton(
+                              icon: Icon(Icons.favorite, color: Styles.customColor, size: 40),
+                              onPressed: () {
+                                // انتقل إلى صفحة المفضلة
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => FavoritePage(),
+                                  ),
+                                );
+                              },
+                            ),
+                            // أيقونة السلة
+                            IconButton(
+                              icon: Icon(Icons.shopping_cart, color: Styles.customColor, size: 40),   
+                              onPressed: () {
+                                // انتقل إلى صفحة السلة
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => CartPage(),
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
+                          // أيقونة الملف الشخصي
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => PersonalScreenWidget(),
+                                ),
+                              );
+                            },
+                            child: CircleAvatar(
+                              backgroundColor: Styles.customColor,
+                              radius: 20,
+                              child: Icon(
+                                Icons.person,
+                                color: Colors.black,
+                                size: 24, // تغيير الحجم إلى 24
+                              ),
+                            ),
                           ),
-                        );
-                      },
-                      child: CircleAvatar(
-                        backgroundColor: Styles.customColor,
-                        radius: 20,
-                        child: Icon(
-                          Icons.person,
-                          color: Colors.black,
-                          size: 24,
-                        ),
+                        ],
                       ),
                     ),
                   ],
+
                 ),
               ),
 
@@ -261,24 +307,7 @@ class _HomePageContentState extends State<HomePageContent> {
     );
   }
 
-  Widget _buildSectionsHeader() {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          Text(
-            'Sections',
-            style: TextStyle(
-              color: Styles.customColor,
-              fontSize: 18.0,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+
 
   Widget _buildCategoryRow() {
     return Padding(
@@ -290,6 +319,7 @@ class _HomePageContentState extends State<HomePageContent> {
           _buildCategoryContainer('Oil', 'assets/oil.png'),
           _buildCategoryContainer('Nets', 'assets/nets.png'),
           _buildCategoryContainer('More', 'assets/more.png'),
+
         ],
       ),
     );
@@ -305,8 +335,8 @@ class _HomePageContentState extends State<HomePageContent> {
           _buildCategoryContainer('Oil', 'assets/oil.png'),
           _buildCategoryContainer('Nets', 'assets/nets.png'),
           _buildCategoryContainer('More', 'assets/more.png'),
-          _buildCategoryContainer('Accessories', 'assets/accessories.png'),
-          _buildCategoryContainer('Tools', 'assets/tools.png'),
+
+
         ],
       ),
     );
@@ -326,6 +356,7 @@ class _HomePageContentState extends State<HomePageContent> {
           : MediaQuery.of(context).size.height * 0.4,
       child: ProductGridPage(),
     );
+
   }
 
   Widget _buildCategoryContainer(String label, String assetPath) {

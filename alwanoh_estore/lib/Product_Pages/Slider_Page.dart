@@ -12,26 +12,30 @@ class NewProductsPage extends StatefulWidget {
 }
 
 class _NewProductsPageState extends State<NewProductsPage> {
-  PageController _pageController = PageController(viewportFraction: 1);
-  int _currentIndex = 0;
+  late PageController _pageController;
+  late int _currentIndex;
   List<QueryDocumentSnapshot> _displayProducts = [];
   Timer? _autoScrollTimer;
 
   @override
   void initState() {
     super.initState();
-    startAutoScroll(); // Start the auto-scrolling timer
+    _pageController = PageController(viewportFraction: 1);
+    _currentIndex = 0;
+    _startAutoScroll();
   }
 
-  void startAutoScroll() {
+  void _startAutoScroll() {
     _autoScrollTimer?.cancel();
-    _autoScrollTimer = Timer.periodic(Duration(seconds: 3), (Timer timer) {
-      int nextIndex = (_currentIndex + 1) % (_displayProducts.length + 2);
-      _pageController.animateToPage(
-        nextIndex,
-        duration: Duration(milliseconds: 400),
-        curve: Curves.easeInOut,
-      );
+    _autoScrollTimer = Timer.periodic(Duration(seconds: 5), (Timer timer) {
+      if (_displayProducts.isNotEmpty) {
+        int nextIndex = (_currentIndex + 1) % _displayProducts.length;
+        _pageController.animateToPage(
+          nextIndex,
+          duration: Duration(milliseconds: 400),
+          curve: Curves.easeInOut,
+        );
+      }
     });
   }
 
@@ -47,121 +51,135 @@ class _NewProductsPageState extends State<NewProductsPage> {
     final selectedDocument = context.watch<UserProvider>().selectedDocument;
 
     if (selectedDocument == null) {
-      return Center(
-        child: Text(
-          'No document selected',
-          style: TextStyle(color: Styles.customColor),
-        ),
-      );
+      return _buildErrorMessage('No document selected');
     }
 
     return StreamBuilder<List<QueryDocumentSnapshot>>(
-      stream: FirebaseFirestore.instance
-          .collection('Product')
-          .doc(selectedDocument)
-          .collection('Honey')
-          .where('isNew', isEqualTo: true)
-          .snapshots()
-          .asyncMap((honeySnapshot) async {
-        final honeyProducts = honeySnapshot.docs;
-
-        final oilSnapshot = await FirebaseFirestore.instance
-            .collection('Product')
-            .doc(selectedDocument)
-            .collection('Oil')
-            .where('isNew', isEqualTo: true)
-            .get();
-
-        final oilProducts = oilSnapshot.docs;
-
-        return [...honeyProducts, ...oilProducts];
-      }),
+      stream: _fetchNewProducts(selectedDocument),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return Center(child: CircularProgressIndicator());
         }
 
         final newProducts = snapshot.data!;
-
         if (newProducts.isEmpty) {
-          return Center(
-            child: Text(
-              'No new products available',
-              style: TextStyle(color: Styles.customColor),
-            ),
-          );
+          return _buildErrorMessage('No new products available');
         }
 
-        // Prepare display products
         _displayProducts = newProducts;
-
-        // Wrap display products with two copies of the first and last item
-        List<QueryDocumentSnapshot> carouselProducts = [
-          _displayProducts.last, // Last item
-          ..._displayProducts,
-          _displayProducts.first, // First item
-        ];
 
         return Column(
           children: [
-            SizedBox(
-              height: 200.0,
-              child: PageView.builder(
-                controller: _pageController,
-                itemCount: carouselProducts.length,
-                onPageChanged: (index) {
-                  setState(() {
-                    _currentIndex = index; // Update current index on page change
-                  });
-
-                  // Reset the index when reaching the end of the list
-                  if (index == 0) {
-                    _pageController.jumpToPage(_displayProducts.length);
-                  } else if (index == carouselProducts.length - 1) {
-                    _pageController.jumpToPage(1);
-                  }
-                },
-                itemBuilder: (context, index) {
-                  final product = carouselProducts[index].data() as Map<String, dynamic>;
-                  final imageUrl = product['image1'] as String?;
-
-                  return GestureDetector(
-                    onTap: () {
-                      // Add navigation logic here
-                    },
-                    child: Container(
-                      margin: EdgeInsets.symmetric(horizontal: 10.0),
-                      child: Card(
-                        color: Colors.black,
-                        elevation: 5,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15.0),
-                          side: BorderSide(
-                            color: Styles.customColor,
-                            width: 2.0,
-                          ),
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(15.0),
-                          child: Image.network(
-                            imageUrl ?? 'https://via.placeholder.com/150',
-                            fit: BoxFit.cover,
-                            width: double.infinity,
-                            height: double.infinity,
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
+            _buildPageView(),
             SizedBox(height: 10.0),
-            // Page indicator
-
+            _buildPageIndicator(),
           ],
         );
       },
+    );
+  }
+
+  Stream<List<QueryDocumentSnapshot>> _fetchNewProducts(String selectedDocument) async* {
+    final honeySnapshot = FirebaseFirestore.instance
+        .collection('Product')
+        .doc(selectedDocument)
+        .collection('Honey')
+        .where('isNew', isEqualTo: true)
+        .snapshots();
+
+    yield* honeySnapshot.asyncMap((honeyDocs) async {
+      final honeyProducts = honeyDocs.docs;
+      final oilSnapshot = await FirebaseFirestore.instance
+          .collection('Product')
+          .doc(selectedDocument)
+          .collection('Oil')
+          .where('isNew', isEqualTo: true)
+          .get();
+      final oilProducts = oilSnapshot.docs;
+      return [...honeyProducts, ...oilProducts];
+    });
+  }
+
+  Widget _buildPageView() {
+    return SizedBox(
+      height: _getCarouselHeight(),
+      child: PageView.builder(
+        controller: _pageController,
+        itemCount: _displayProducts.length,
+        onPageChanged: (index) {
+          setState(() {
+            _currentIndex = index; // تحديث الفهرس الحالي بشكل صحيح
+          });
+        },
+        itemBuilder: (context, index) {
+          final product = _displayProducts[index].data() as Map<String, dynamic>;
+          final imageUrl = product['image1'] as String? ?? 'https://via.placeholder.com/150';
+
+          return GestureDetector(
+            onTap: () {
+              // Add navigation logic here
+            },
+            child: _buildProductCard(imageUrl),
+          );
+        },
+      ),
+    );
+  }
+
+  double _getCarouselHeight() {
+    final width = MediaQuery.of(context).size.width;
+    if (width >= 1200) return 660.0;
+    if (width >= 992) return 500.0;
+    if (width >= 600) return 350.0;
+    return 200.0;
+  }
+
+  Widget _buildProductCard(String imageUrl) {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 10.0),
+      child: Card(
+        color: Colors.black,
+        elevation: 5,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15.0),
+          side: BorderSide(
+            color: Styles.customColor,
+            width: 2.0,
+          ),
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(15.0),
+          child: Image.network(
+            imageUrl,
+            fit: BoxFit.cover,
+            width: double.infinity,
+            height: double.infinity,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildErrorMessage(String message) {
+    return Center(
+      child: Text(
+        message,
+        style: TextStyle(color: Styles.customColor),
+      ),
+    );
+  }
+
+  Widget _buildPageIndicator() {
+    return SmoothPageIndicator(
+      controller: _pageController,
+      count: _displayProducts.length,
+      effect: ExpandingDotsEffect(
+        activeDotColor: Styles.customColor,
+        dotColor: Styles.customColor50,
+        dotHeight: 8,
+        dotWidth: 8,
+        spacing: 4,
+      ),
     );
   }
 }

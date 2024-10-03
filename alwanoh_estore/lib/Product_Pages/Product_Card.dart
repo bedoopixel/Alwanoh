@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
+import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'ProductDetailsPage.dart';
 import '../Thems/styles.dart';
 import '../Serves/UserProvider.dart';
@@ -66,8 +67,9 @@ class _ProductGridPageState extends State<ProductGridPage> {
 
             return LayoutBuilder(
               builder: (context, constraints) {
-                int crossAxisCount = constraints.maxWidth > 1024 ? 6 : (constraints.maxWidth > 800 ? 6 : 2);
-                double childAspectRatio = constraints.maxWidth > 1024 ? 0.80 : (constraints.maxWidth > 800 ? 0.80 : 0.65);
+                int crossAxisCount = constraints.maxWidth > 1200 ? 8 : (constraints.maxWidth > 767 ? 5 : 2);
+                double childAspectRatio = constraints.maxWidth > 1024 ? 0.65 : (constraints.maxWidth > 767 ? 0.65 : 0.65);
+
 
                 return GridView.builder(
                   padding: const EdgeInsets.all(10.0),
@@ -158,10 +160,10 @@ class _ProductGridPageState extends State<ProductGridPage> {
                                                         height: imageHeight,
                                                         decoration: BoxDecoration(
                                                           color: Styles.customColor.withOpacity(0.5),
-                                                          borderRadius: BorderRadius.circular(15.0),
+                                                          borderRadius: BorderRadius.circular(10.0),
                                                         ),
                                                         child: ClipRRect(
-                                                          borderRadius: BorderRadius.circular(15.0),
+                                                          borderRadius: BorderRadius.circular(10.0),
                                                           child: Opacity(
                                                             opacity: 0.7,
                                                             child: Image.network(
@@ -178,7 +180,7 @@ class _ProductGridPageState extends State<ProductGridPage> {
                                                 ),
                                                 if (discount.isNotEmpty)
                                                   Positioned(
-                                                    bottom: 18.0,
+                                                    bottom: 30.0,
                                                     right: 18.0,
                                                     child: Container(
                                                       padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
@@ -198,8 +200,8 @@ class _ProductGridPageState extends State<ProductGridPage> {
                                                   ),
                                                 if (isNew)
                                                   Positioned(
-                                                    top: 22.0,
-                                                    left: 8.0,
+                                                    top: 14.0,
+                                                    left: 16.0,
                                                     child: Container(
                                                       padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
                                                       decoration: BoxDecoration(
@@ -216,45 +218,76 @@ class _ProductGridPageState extends State<ProductGridPage> {
                                                       ),
                                                     ),
                                                   ),
+                                                Positioned(
+                                                  bottom: 15.0,
+                                                  left: 0,
+                                                  right: 0,
+                                                  child: Center(
+                                                    child: Padding(
+                                                      padding: const EdgeInsets.all(0.2),
+                                                      child: SmoothPageIndicator(
+                                                        controller: pageController,
+                                                        count: imageUrls.length,
+                                                        effect: ExpandingDotsEffect(
+                                                          activeDotColor: Styles.customColor,
+                                                          dotColor: Styles.customColor50,
+                                                          dotHeight: 5,
+                                                          dotWidth: 5,
+                                                          spacing: 2.5,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+
+
                                               ],
                                             ),
                                           ),
                                         ),
+
                                         Padding(
-                                          padding: const EdgeInsets.all(5.0),
+                                          padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 0.0),
                                           child: Row(
-                                            mainAxisAlignment: MainAxisAlignment.center,
-                                            children: List.generate(imageUrls.length, (dotIndex) {
-                                              return AnimatedBuilder(
-                                                animation: pageController,
-                                                builder: (context, child) {
-                                                  final currentPage = pageController.hasClients ? pageController.page ?? 0 : 0;
-                                                  final isActive = currentPage.round() == dotIndex;
-                                                  return Container(
-                                                    margin: const EdgeInsets.symmetric(horizontal: 4.0),
-                                                    width: isActive ? 24.0 : 8.0,
-                                                    height: isActive ? 12.0 : 8.0,
-                                                    decoration: BoxDecoration(
-                                                      color: isActive ? Styles.customColor : Colors.white30,
-                                                      shape: BoxShape.circle,
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Container(
+                                                child: Row(
+                                                  mainAxisAlignment: MainAxisAlignment.start,
+                                                  children: [
+                                                    Icon(
+                                                      parsedRating > 0 ? Icons.star_rounded : Icons.star_border_rounded,
+                                                      color: Styles.customColor,
+                                                      size: 20,
                                                     ),
-                                                  );
-                                                },
-                                              );
-                                            }),
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-                                          child: Row(
-                                            mainAxisAlignment: MainAxisAlignment.center,
-                                            children: List.generate(5, (index) {
-                                              return Icon(
-                                                index < parsedRating ? Icons.star : Icons.star_border,
-                                                color: Styles.customColor,
-                                                size: fontSize,
-                                              );
-                                            }),
+                                                    SizedBox(width: 3),
+                                                    Text(
+                                                      '$parsedRating.5',
+                                                      style: TextStyle(
+                                                        fontSize: 13.0,
+                                                        fontWeight: FontWeight.bold,
+                                                        color: Styles.customColor,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              Container(
+                                                child: Row(
+                                                  mainAxisAlignment: MainAxisAlignment.end,
+                                                  children: [
+                                                    Text(
+                                                      'قسم المنتج',
+                                                      style: TextStyle(
+                                                        fontSize: 12.0,
+                                                        fontWeight: FontWeight.bold,
+                                                        color: Styles.customColor,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                         ),
                                         Padding(
@@ -283,7 +316,7 @@ class _ProductGridPageState extends State<ProductGridPage> {
                                               style: TextStyle(
                                                 color: Colors.white,
                                                 fontWeight: FontWeight.bold,
-                                                fontSize: fontSize + 4, // Slightly larger for price
+                                                fontSize: fontSize + 8, // Slightly larger for price
                                               ),
                                             ),
                                           ),
