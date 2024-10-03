@@ -221,53 +221,41 @@ class _SignInScreenState extends State<SignInScreen> {
     String password = passwordController.text.trim();
 
     if (_formSignInKey.currentState!.validate()) {
-      User? user = await _auth.sginupWithEmailAndPAssword(email, password); // Use the correct method for signing in
-      if (user != null) {
-        // Check if email is verified
-        if (user.emailVerified) {
-          // Fetch user document to get selectedDocument
-          DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
-          if (userDoc.exists) {
-            String selectedDocument = userDoc.get('document') ?? 'YE'; // Default to 'YE' if null
+      try {
+        // Sign in the user
+        UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+          email: email,
+          password: password,
+        );
+        User? user = userCredential.user;
 
-            // Update the selectedDocument in the provider
-            Provider.of<UserProvider>(context, listen: false).updateSelectedDocument(selectedDocument);
+        if (user != null) {
+          await user.reload(); // Reload user data
+          if (user.emailVerified) {
+            // Fetch user document from Firestore
+            DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
 
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => HomePage(),
-              ),
-            );
-
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Sign in successful")));
+            if (userDoc.exists) {
+              String selectedDocument = userDoc.get('document') ?? 'YE'; // Fetch document or default to 'YE'
+              Provider.of<UserProvider>(context, listen: false).updateSelectedDocument(selectedDocument);
+              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomePage()));
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Sign in successful")));
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("User document not found in Firestore")));
+            }
           } else {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("User not found in Firestore")));
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Please verify your email before signing in.")));
+            await user.sendEmailVerification();
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("A new verification email has been sent to ${user.email}.")));
+            await FirebaseAuth.instance.signOut();
           }
-        } else {
-          // Email is not verified, ask the user to verify their email
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text("Please verify your email before signing in."),
-            ),
-          );
-
-          // Optionally, send a new verification email
-          await user.sendEmailVerification();
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text("A new verification email has been sent to ${user.email}."),
-            ),
-          );
-
-          // Optionally, sign the user out
-          await _auth.signOut();
         }
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Sign in failed")));
+      } on FirebaseAuthException catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message ?? "Sign in failed")));
       }
     }
   }
+
 
 
   // Method to sign in with Google

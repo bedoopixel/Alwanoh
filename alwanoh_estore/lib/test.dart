@@ -1,175 +1,413 @@
-// import 'package:flutter/material.dart';
-// import 'package:google_sign_in/google_sign_in.dart';
-// // Add other necessary imports here...
-//
-// class SignUpScreen extends StatefulWidget {
-//   const SignUpScreen({super.key});
-//
-//   @override
-//   State<SignUpScreen> createState() => _SignUpScreenState();
-// }
-//
-// class _SignUpScreenState extends State<SignUpScreen> {
-//   // Other members remain the same...
-//
-//   final GoogleSignIn _googleSignIn = GoogleSignIn(); // Google Sign-In instance
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return CustomScaffold(
-//       child: Column(
-//         crossAxisAlignment: CrossAxisAlignment.start,
-//         mainAxisAlignment: MainAxisAlignment.start,
-//         children: [
-//           Expanded(
-//             flex: 7,
-//             child: Container(
-//               padding: const EdgeInsets.fromLTRB(25.0, 80.0, 25.0, 20.0),
-//               decoration: const BoxDecoration(
-//                 color: Colors.black,
-//                 borderRadius: BorderRadius.only(
-//                   topLeft: Radius.circular(0.0),
-//                   topRight: Radius.circular(0.0),
-//                 ),
-//               ),
-//               child: SingleChildScrollView(
-//                 child: Form(
-//                   key: _formSignupKey,
-//                   child: Column(
-//                     crossAxisAlignment: CrossAxisAlignment.center,
-//                     children: [
-//                       Text(
-//                         'Get Started',
-//                         style: TextStyle(
-//                           fontSize: 30.0,
-//                           fontWeight: FontWeight.w900,
-//                           color: Styles.customColor,
-//                         ),
-//                       ),
-//                       const SizedBox(height: 40.0),
-//
-//                       // Existing widgets...
-//
-//                       // Sign Up Button
-//                       SizedBox(
-//                         width: double.infinity,
-//                         child: ElevatedButton(
-//                           style: ElevatedButton.styleFrom(
-//                             backgroundColor: Styles.customColor,
-//                           ),
-//                           onPressed: _signup,
-//                           child: Text('Sign up', style: TextStyle(color: Colors.black)),
-//                         ),
-//                       ),
-//                       const SizedBox(height: 30.0),
-//
-//                       // Google Sign-In Button
-//                       GestureDetector(
-//                         onTap: _signInWithGoogle,
-//                         child: Container(
-//                           padding: const EdgeInsets.symmetric(vertical: 15.0),
-//                           decoration: BoxDecoration(
-//                             color: Styles.customColor,
-//                             borderRadius: BorderRadius.circular(10),
-//                           ),
-//                           width: double.infinity,
-//                           child: Row(
-//                             mainAxisAlignment: MainAxisAlignment.center,
-//                             children: [
-//                               const FaIcon(FontAwesomeIcons.google, color: Colors.white),
-//                               const SizedBox(width: 10.0),
-//                               Text('Sign in with Google', style: TextStyle(color: Colors.white)),
-//                             ],
-//                           ),
-//                         ),
-//                       ),
-//                       const SizedBox(height: 30.0),
-//
-//                       // Already have an account...
-//                       Row(
-//                         mainAxisAlignment: MainAxisAlignment.center,
-//                         children: [
-//                           Text('Already have an account?', style: TextStyle(color: Styles.customColor)),
-//                           GestureDetector(
-//                             onTap: () {
-//                               Navigator.push(
-//                                 context,
-//                                 MaterialPageRoute(
-//                                   builder: (e) => const SignInScreen(),
-//                                 ),
-//                               );
-//                             },
-//                             child: Text(
-//                               'Sign in',
-//                               style: TextStyle(
-//                                 fontWeight: FontWeight.bold,
-//                                 color: Styles.customColor,
-//                               ),
-//                             ),
-//                           ),
-//                         ],
-//                       ),
-//                       const SizedBox(height: 20.0),
-//                     ],
-//                   ),
-//                 ),
-//               ),
-//             ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-//
-//   // Other methods remain the same...
-//
-//   // Google Sign-In method
-//   Future<void> _signInWithGoogle() async {
-//     try {
-//       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-//       if (googleUser == null) return; // The user canceled the sign-in
-//
-//       final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-//
-//       // Create a new credential
-//       final credential = GoogleAuthProvider.credential(
-//         accessToken: googleAuth.accessToken,
-//         idToken: googleAuth.idToken,
-//       );
-//
-//       // Sign in to Firebase with the Google credentials
-//       UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
-//       User? user = userCredential.user;
-//
-//       // Store user data in Firestore
-//       if (user != null) {
-//         await _storeUserData(user.uid, user.displayName ?? '', user.email ?? '', '', null);
-//         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Google account created successfully")));
-//
-//         Navigator.pushReplacement(
-//           context,
-//           MaterialPageRoute(
-//             builder: (context) => HomePage(),
-//           ),
-//         );
-//       }
-//     } catch (e) {
-//       print("Google sign-in failed: $e");
-//       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Google sign-in failed")));
-//     }
-//   }
-//
-//   // Store user data in Firestore
-//   Future<void> _storeUserData(String uid, String name, String email, String phoneNumber, String? imageUrl) async {
-//     CollectionReference users = FirebaseFirestore.instance.collection('users');
-//
-//     await users.doc(uid).set({
-//       'name': name,
-//       'email': email,
-//       'phoneNumber': phoneNumber,
-//       'document': _selectedDocument, // Store selected document
-//       'imageUrl': imageUrl,
-//       'createdAt': FieldValue.serverTimestamp(),
-//     });
-//   }
-// }
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../Cart/CartPage.dart';
+import '../Favorite/FavoritesPage.dart';
+import '../Product_Pages/Product_Card.dart';
+import '../Product_Pages/ProductsPage.dart';
+import '../Product_Pages/Slider_Page.dart';
+import '../Profile_Pages/PersonalScreenWidget.dart';
+import '../Serves/UserProvider.dart';
+import '../Thems/styles.dart';
+
+class HomePage extends StatefulWidget {
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  int _selectedIndex = 0;
+
+  final List<Widget> _pages = [
+    HomePageContent(),
+    FavoritePage(),
+    CartPage(),
+    PersonalScreenWidget(),
+  ];
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: _pages[_selectedIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        backgroundColor: Colors.black,
+        selectedItemColor: Styles.customColor,
+        unselectedItemColor: Colors.white,
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.favorite),
+            label: 'Favorites',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.shopping_cart),
+            label: 'Cart',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Profile',
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class HomePageContent extends StatefulWidget {
+  final String? imageUrl;
+
+  HomePageContent({Key? key, this.imageUrl}) : super(key: key);
+
+  @override
+  State<HomePageContent> createState() => _HomePageContentState();
+}
+
+class _HomePageContentState extends State<HomePageContent> {
+  late String? _imageUrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _imageUrl = widget.imageUrl;
+    if (_imageUrl == null) {
+      _loadImage();
+    }
+  }
+
+  Future<void> _loadImage() async {
+    try {
+      String downloadURL = await FirebaseStorage.instance
+          .refFromURL('gs://alwanoh-store.appspot.com/Home/p1.png')
+          .getDownloadURL();
+      print('Image URL: $downloadURL');
+      setState(() {
+        _imageUrl = downloadURL;
+      });
+    } catch (e) {
+      print('Error fetching image from Firebase Storage: $e');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
+    bool isLargeScreen = screenWidth >= 1920 && screenHeight >= 1080;
+
+    return Consumer<UserProvider>(
+      builder: (context, userProvider, child) {
+        String selectedDocument = userProvider.selectedDocument ?? '';
+
+        return SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildCustomAppBarWithSearchBar(context),
+              _buildSectionsHeader(),
+              isLargeScreen
+                  ? _buildLargeScreenCategoryRow()
+                  : _buildCategoryRow(),
+              _buildNewProductsSection(),
+              _buildProductGrid(context, isLargeScreen),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildCustomAppBarWithSearchBar(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    double fontSize = screenWidth > 600 ? 14.0 : 16.0;
+    double iconSize = screenWidth > 600 ? 24.0 : 20.0;
+    EdgeInsets padding = screenWidth > 600
+        ? EdgeInsets.symmetric(horizontal: 32.0)
+        : EdgeInsets.symmetric(horizontal: 16.0);
+
+    double searchBarWidth = screenWidth > 1024 ? screenWidth * 0.2 : screenWidth * 0.95;
+    double containerWidth = screenWidth > 1024 ? screenWidth * 0.75 : screenWidth;
+
+    return Container(
+      color: Colors.black,
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        children: [
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            children: [
+              Container(
+                width: containerWidth,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        _imageUrl == null
+                            ? CircularProgressIndicator()
+                            : Image.network(
+                          _imageUrl!,
+                          fit: BoxFit.contain,
+                          width: 75,
+                          height: 75,
+                          loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
+                            if (loadingProgress == null) return child;
+                            return Center(
+                              child: CircularProgressIndicator(
+                                value: loadingProgress.expectedTotalBytes != null
+                                    ? loadingProgress.cumulativeBytesLoaded / (loadingProgress.expectedTotalBytes ?? 1)
+                                    : null,
+                              ),
+                            );
+                          },
+                          errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
+                            return Text('Error loading image', style: TextStyle(color: Colors.red));
+                          },
+                        ),
+                        SizedBox(width: 10),
+                        Text(
+                          'ALWANOH YEMENI HONEY',
+                          style: TextStyle(
+                            color: Styles.customColor,
+                            fontSize: 16.0,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => PersonalScreenWidget(),
+                          ),
+                        );
+                      },
+                      child: CircleAvatar(
+                        backgroundColor: Styles.customColor,
+                        radius: 20,
+                        child: Icon(
+                          Icons.person,
+                          color: Colors.black,
+                          size: 24,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 15, left: 15),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: searchBarWidth,
+                    maxHeight: 45,
+                  ),
+                  child: TextField(
+                    onChanged: (query) {
+                      // Handle search input
+                    },
+                    style: TextStyle(color: Styles.customColor, fontSize: fontSize),
+                    decoration: InputDecoration(
+                      hintText: 'Search...',
+                      hintStyle: TextStyle(color: Colors.white54),
+                      prefixIcon: Icon(Icons.search, color: Styles.customColor, size: iconSize),
+                      filled: true,
+                      fillColor: Colors.grey[900],
+                      border: OutlineInputBorder(
+                        borderSide: BorderSide(color: Styles.customColor),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Styles.customColor),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Styles.customColor),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSectionsHeader() {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          Text(
+            'Sections',
+            style: TextStyle(
+              color: Styles.customColor,
+              fontSize: 18.0,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCategoryRow() {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          _buildCategoryContainer('Honey', 'assets/honey.png', () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ProductsPage(category: 'Honey'),
+              ),
+            );
+          }),
+          _buildCategoryContainer('Oil', 'assets/oil.png', () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ProductsPage(category: 'Oil'),
+              ),
+            );
+          }),
+          _buildCategoryContainer('Nets', 'assets/nets.png', () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ProductsPage(category: 'Nets'),
+              ),
+            );
+          }),
+          _buildCategoryContainer('More', 'assets/more.png', () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ProductsPage(category: 'More'),
+              ),
+            );
+          }),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLargeScreenCategoryRow() {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+
+          _buildCategoryContainer('Honey', 'assets/honey.png', () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ProductsPage(category: 'Honey'),
+              ),
+            );
+          }),
+          _buildCategoryContainer('Oil', 'assets/oil.png', () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ProductsPage(category: 'Oil'),
+              ),
+            );
+          }),
+          _buildCategoryContainer('Nets', 'assets/nets.png', () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ProductsPage(category: 'Nets'),
+              ),
+            );
+          }),
+          _buildCategoryContainer('More', 'assets/more.png', () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ProductsPage(category: 'More'),
+              ),
+            );
+          }),
+          _buildCategoryContainer('Accessories', 'assets/accessories.png', () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ProductsPage(category: 'Accessories'),
+              ),
+            );
+          }),
+          _buildCategoryContainer('Tools', 'assets/tools.png', () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ProductsPage(category: 'Tools'),
+              ),
+            );
+          }),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCategoryContainer(String title, String imagePath, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        children: [
+          Image.asset(
+            imagePath,
+            width: 50,
+            height: 50,
+          ),
+          SizedBox(height: 5),
+          Text(
+            title,
+            style: TextStyle(color: Styles.customColor, fontSize: 14.0),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNewProductsSection() {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Text(
+        'New Products',
+        style: TextStyle(
+          color: Styles.customColor,
+          fontSize: 18.0,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProductGrid(BuildContext context, bool isLargeScreen) {
+    // Add your product grid implementation here
+    return Container(); // Placeholder for the product grid
+  }
+}
