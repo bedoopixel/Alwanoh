@@ -275,22 +275,25 @@ class _HomePageContentState extends State<HomePageContent> {
                             ),
                           ],
                           // أيقونة الملف الشخصي
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => PersonalScreenWidget(),
+                          Padding(
+                            padding: const EdgeInsets.only(right: 10, left: 5),
+                            child: GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => PersonalScreenWidget(),
+                                  ),
+                                );
+                              },
+                              child: CircleAvatar(
+                                backgroundColor: Styles.customColor,
+                                radius: 20,
+                                child: Icon(
+                                  Icons.person,
+                                  color: Colors.black,
+                                  size: 24, // تغيير الحجم إلى 24
                                 ),
-                              );
-                            },
-                            child: CircleAvatar(
-                              backgroundColor: Styles.customColor,
-                              radius: 20,
-                              child: Icon(
-                                Icons.person,
-                                color: Colors.black,
-                                size: 24, // تغيير الحجم إلى 24
                               ),
                             ),
                           ),
@@ -303,7 +306,7 @@ class _HomePageContentState extends State<HomePageContent> {
               ),
 
               Padding(
-                padding: const EdgeInsets.only(top: 15,left: 15),
+                padding: const EdgeInsets.only(top: 15,left: 5),
                 child: ConstrainedBox(
                   constraints: BoxConstraints(
                     maxWidth: searchBarWidth,
