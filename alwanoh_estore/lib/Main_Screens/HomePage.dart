@@ -383,7 +383,7 @@ class _HomePageContentState extends State<HomePageContent> {
               ),
             );
           }),
-          _buildCategoryContainer('More', 'assets/more.png', () {
+          _buildCategoryContainer('Beddo', 'assets/more.png', () {
             Navigator.push(
               context,
               MaterialPageRoute(
