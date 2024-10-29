@@ -6,6 +6,7 @@ class PaymentMethodPage extends StatefulWidget {
   final List<dynamic> cartItems; // Accepting cart items
 
   PaymentMethodPage({Key? key, required this.cartItems}) : super(key: key);
+
   @override
   _PaymentMethodPageState createState() => _PaymentMethodPageState();
 }
@@ -50,43 +51,48 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
             Center(
               child: Container(
                 decoration: BoxDecoration(
-                  border: Border.all(color: Styles.customColor, width: 2), // Set border color and width
-                  borderRadius: BorderRadius.circular(30), // Ensure rounded corners
+                  border: Border.all(color: Styles.customColor, width: 2), // Border color and width
                 ),
-                child: ElevatedButton(
-                  onPressed: _selectedPaymentMethod == null
-                      ? null
-                      : () {
-                    if (_selectedPaymentMethod == 'MasterCard') {
-                      _showDemoPaymentDialog(); // Show demo payment dialog
-                    } else {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => DeliveryMethodPage(cartItems: widget.cartItems,
-                            selectedPaymentMethod: _selectedPaymentMethod!,),
-                        ),
-                      );
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                        content: Text('Selected: $_selectedPaymentMethod'),
-                      ));
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.transparent, // Using primaryColor
-                    minimumSize: Size(200, 50), // Set minimum size for the button (width, height)
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10), // Ensure rounded corners
+                child: ClipPath(
+                  clipper: LeftCarveClipper(),
+                  child: ElevatedButton(
+                    onPressed: _selectedPaymentMethod == null
+                        ? null
+                        : () {
+                      if (_selectedPaymentMethod == 'MasterCard') {
+                        _showDemoPaymentDialog(); // Show demo payment dialog
+                      } else {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => DeliveryMethodPage(
+                              cartItems: widget.cartItems,
+                              selectedPaymentMethod: _selectedPaymentMethod!,
+                            ),
+                          ),
+                        );
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Selected: $_selectedPaymentMethod'),
+                          ),
+                        );
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.transparent, // Button background color
+                      minimumSize: Size(200, 50), // Minimum size for the button
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10), // Rounded corners
+                      ),
                     ),
-                  ),
-                  child: Text(
-                    'Proceed',
-                    style: TextStyle(color: Colors.white), // Ensuring text is white
+                    child: Text(
+                      'Proceed',
+                      style: TextStyle(color: Colors.white), // White text color
+                    ),
                   ),
                 ),
               ),
             ),
-
           ],
         ),
       ),
@@ -120,7 +126,6 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
           ),
           actions: [
             TextButton(
-
               onPressed: () {
                 if (cardNumberController.text.isNotEmpty && cardPasswordController.text.isNotEmpty) {
                   Navigator.of(context).pop(); // Close dialog
@@ -155,8 +160,10 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => DeliveryMethodPage(cartItems: widget.cartItems,
-            selectedPaymentMethod: _selectedPaymentMethod!,),
+          builder: (context) => DeliveryMethodPage(
+            cartItems: widget.cartItems,
+            selectedPaymentMethod: _selectedPaymentMethod!,
+          ),
         ),
       );
     });
@@ -178,16 +185,14 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
               : Styles.customColor,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-              color: _selectedPaymentMethod == method
-                  ? Styles.customColor // Highlight border when selected
-                  : Styles.customColor,
+              color: Styles.customColor, // Border color for the container
               width: 1),
           boxShadow: [
             BoxShadow(
               color: Colors.grey.withOpacity(0.5),
               spreadRadius: 2,
               blurRadius: 5,
-              offset: Offset(0, 3), // changes position of shadow
+              offset: Offset(0, 3), // Shadow position
             ),
           ],
         ),
@@ -208,10 +213,26 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
               Icon(
                 Icons.check_circle,
                 color: Styles.primaryColor,
-              ), // Show check icon for the selected method
+              ), // Check icon for selected method
           ],
         ),
       ),
     );
   }
+}
+
+class LeftCarveClipper extends CustomClipper<Path> {
+  @override
+  Path getClip(Size size) {
+    final path = Path();
+    path.lineTo(size.width, 0); // Top-right corner
+    path.lineTo(size.width, size.height); // Bottom-right corner
+    path.lineTo(30, size.height); // Bottom-left corner with some offset
+    path.quadraticBezierTo(0, size.height / 2, 30, 0); // Carved left side
+    path.close();
+    return path;
+  }
+
+  @override
+  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
 }

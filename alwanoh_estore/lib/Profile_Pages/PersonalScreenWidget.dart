@@ -5,6 +5,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../Cart/SavedOrdersPage.dart';
 import '../ChatPage.dart';
+import '../CustomWidget.dart';
 import '../Favorite/FavoritesPage.dart';
 import '../Login/loginScreen.dart';
 import '../Signin/regScreen.dart';
@@ -257,7 +258,7 @@ class _PersonalScreenWidgetState extends State<PersonalScreenWidget> {
             title: Text('About', style: TextStyle(color: Styles.customColor)),
             trailing: Icon(Icons.arrow_forward_ios, color: Styles.customColor),
             onTap: () {
-              // Navigator.push(context, MaterialPageRoute(builder: (context) => AddProductPage()));
+              Navigator.push(context, MaterialPageRoute(builder: (context) => CustomNavigationBar()));
             },
           ),
           Divider(color: Styles.seconderyColor,),
