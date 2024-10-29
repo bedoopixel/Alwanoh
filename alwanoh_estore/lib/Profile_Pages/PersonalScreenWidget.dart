@@ -10,6 +10,7 @@ import '../Favorite/FavoritesPage.dart';
 import '../Login/loginScreen.dart';
 import '../Signin/regScreen.dart';
 import '../Thems/styles.dart';
+import '../test.dart';
 import 'AddAddressPage.dart';
 import 'Change-Password.dart';
 import 'DeliveryLocationPage.dart';
@@ -258,7 +259,7 @@ class _PersonalScreenWidgetState extends State<PersonalScreenWidget> {
             title: Text('About', style: TextStyle(color: Styles.customColor)),
             trailing: Icon(Icons.arrow_forward_ios, color: Styles.customColor),
             onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => CustomNavigationBar()));
+              Navigator.push(context, MaterialPageRoute(builder: (context) => HomePages()));
             },
           ),
           Divider(color: Styles.seconderyColor,),
