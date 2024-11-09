@@ -10,6 +10,7 @@ import '../Favorite/FavoritesPage.dart';
 import '../Login/loginScreen.dart';
 import '../Signin/regScreen.dart';
 import '../Thems/styles.dart';
+import '../github test.dart';
 import '../test.dart';
 import 'AddAddressPage.dart';
 import 'Change-Password.dart';
@@ -250,7 +251,7 @@ class _PersonalScreenWidgetState extends State<PersonalScreenWidget> {
             title: Text('Privacy Policy ', style: TextStyle(color: Styles.customColor)),
             trailing: Icon(Icons.arrow_forward_ios, color: Styles.customColor),
             onTap: () {
-              // Navigator.push(context, MaterialPageRoute(builder: (context) => PrivacyPolicyPage()));
+              Navigator.push(context, MaterialPageRoute(builder: (context) => HomesPages()));
             },
           ),
           Divider(color: Styles.seconderyColor,),

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../Cart/CartPage.dart';
 import '../Favorite/FavoritesPage.dart';
+import '../P_Sliders/O_slider.dart';
 import '../Product_Pages/Product_Card.dart';
 import '../Product_Pages/ProductsPage.dart';
 import '../Product_Pages/Slider_Page.dart';
@@ -41,34 +42,7 @@ class _HomePageState extends State<HomePage> {
       backgroundColor: Colors.black,
       body: _pages[_selectedIndex],
       // تحقق من عرض الشاشة لإظهار أو إخفاء شريط التنقل السفلي
-      bottomNavigationBar: screenWidth <= 1200
-          ? BottomNavigationBar(
-        type: BottomNavigationBarType.fixed, // Ensure the background color is applied
-        backgroundColor: Colors.black,  // This sets the background to black
-        selectedItemColor: Styles.customColor,
-        unselectedItemColor: Colors.white,
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.favorite),
-            label: 'Favorites',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.shopping_cart),
-            label: 'Cart',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
-          ),
-        ],
-      )
-          : null, // إخفاء شريط التنقل إذا كان العرض أكبر من 1200 بكسل
+     // إخفاء شريط التنقل إذا كان العرض أكبر من 1200 بكسل
     );
   }
 }
@@ -363,7 +337,7 @@ class _HomePageContentState extends State<HomePageContent> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => ProductsPage(category: 'Honey'),
+                builder: (context) => ProductsPage(category: 'Honey', filterType: '',),
               ),
             );
           }),
@@ -371,7 +345,7 @@ class _HomePageContentState extends State<HomePageContent> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => ProductsPage(category: 'Oil'),
+                builder: (context) => ProductsPage(category: 'Oil', filterType: '',),
               ),
             );
           }),
@@ -379,7 +353,7 @@ class _HomePageContentState extends State<HomePageContent> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => ProductsPage(category: 'Nets'),
+                builder: (context) => ProductsPage(category: 'Nets', filterType: '',),
               ),
             );
           }),
@@ -387,7 +361,7 @@ class _HomePageContentState extends State<HomePageContent> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => ProductsPage(category: 'More'),
+                builder: (context) => ProductsPage(category: 'More', filterType: '',),
               ),
             );
           }),
@@ -409,7 +383,7 @@ class _HomePageContentState extends State<HomePageContent> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => ProductsPage(category: 'Honey'),
+                builder: (context) => ProductsPage(category: 'Honey', filterType: '',),
               ),
             );
           }),
@@ -417,7 +391,7 @@ class _HomePageContentState extends State<HomePageContent> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => ProductsPage(category: 'Oil'),
+                builder: (context) => ProductsPage(category: 'Oil', filterType: '',),
               ),
             );
           }),
@@ -425,7 +399,7 @@ class _HomePageContentState extends State<HomePageContent> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => ProductsPage(category: 'Nets'),
+                builder: (context) => ProductsPage(category: 'Nets', filterType: '',),
               ),
             );
           }),
@@ -433,7 +407,7 @@ class _HomePageContentState extends State<HomePageContent> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => ProductsPage(category: 'More'),
+                builder: (context) => ProductsPage(category: 'More', filterType: '',),
               ),
             );
           }),
@@ -441,7 +415,7 @@ class _HomePageContentState extends State<HomePageContent> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => ProductsPage(category: 'Accessories'),
+                builder: (context) => ProductsPage(category: 'Accessories', filterType: '',),
               ),
             );
           }),
@@ -449,7 +423,7 @@ class _HomePageContentState extends State<HomePageContent> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => ProductsPage(category: 'Tools'),
+                builder: (context) => ProductsPage(category: 'Tools', filterType: '',),
               ),
             );
           }),
@@ -467,7 +441,7 @@ class _HomePageContentState extends State<HomePageContent> {
 
   Widget _buildProductGrid(BuildContext context, bool isLargeScreen) {
     return SizedBox(
-      height: MediaQuery.of(context).size.height,
+      height: MediaQuery.of(context).size.height*0.70,
       child: ProductGridPage(searchQuery: _searchQuery, products: _products,),
       // Pass the search query
     );
@@ -480,7 +454,7 @@ class _HomePageContentState extends State<HomePageContent> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => ProductsPage(category: 'Oil',), // Navigate to ProductsPage
+            builder: (context) => ProductsPage(category: 'Oil', filterType: '',), // Navigate to ProductsPage
           ),
         );
       },
