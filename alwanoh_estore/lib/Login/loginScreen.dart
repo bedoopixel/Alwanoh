@@ -8,10 +8,12 @@ import 'package:image_picker/image_picker.dart';
 import 'package:google_sign_in/google_sign_in.dart'; // Google Sign In
 
 import '../Main_Screens/HomePage.dart';
+import '../Profile_Pages/EditProfilePage.dart';
 import '../Serves/Auth.dart';
 import '../Signin/regScreen.dart';
 import '../Thems/custom_scaffold.dart';
 import '../Thems/styles.dart';
+import 'CompleteProfilePage.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -292,7 +294,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   ),
                 ),
                 icon: const FaIcon(FontAwesomeIcons.google, color: Colors.black),
-                onPressed: _isLoading ? null : _signInWithGoogle,
+                onPressed: _isLoading ? null : _signInnWithGoogle,
                 label: Text(
                   'Sign in with Google',
                   style: TextStyle(color: Colors.black),
@@ -405,7 +407,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
 
   // Google Sign-In method
-  Future<void> _signInWithGoogle() async {
+  Future<void> _signInnWithGoogle() async {
     setState(() {
       _isLoading = true;
     });
@@ -437,7 +439,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
             .collection('users')
             .doc(userCredential.user!.uid)
             .set({
-          'fullName': googleUser.displayName,
+          'name': googleUser.displayName,
           'email': googleUser.email,
           'imageUrl': googleUser.photoUrl,
           'createdAt': FieldValue.serverTimestamp(),
@@ -446,7 +448,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
       // Navigate to HomePage
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) =>  HomePage()),
+        MaterialPageRoute(builder: (context) =>  CompleteProfilePage(  fullName: googleUser.displayName ?? '',
+          email: googleUser.email,
+          imageUrl: googleUser.photoUrl,)),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(

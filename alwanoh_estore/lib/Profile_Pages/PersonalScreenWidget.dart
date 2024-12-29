@@ -16,6 +16,7 @@ import 'AddAddressPage.dart';
 import 'Change-Password.dart';
 import 'DeliveryLocationPage.dart';
 import 'EditProfilePage.dart';
+import 'LocationPickerPage.dart';
 import 'OrdersManagementPage.dart';
 import 'UseOrdersPage.dart';
 import 'UserAddressPage.dart';
@@ -251,7 +252,7 @@ class _PersonalScreenWidgetState extends State<PersonalScreenWidget> {
             title: Text('Privacy Policy ', style: TextStyle(color: Styles.customColor)),
             trailing: Icon(Icons.arrow_forward_ios, color: Styles.customColor),
             onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => HomesPages()));
+              // Navigator.push(context, MaterialPageRoute(builder: (context) => HomesPages()));
             },
           ),
           Divider(color: Styles.seconderyColor,),
@@ -260,7 +261,7 @@ class _PersonalScreenWidgetState extends State<PersonalScreenWidget> {
             title: Text('About', style: TextStyle(color: Styles.customColor)),
             trailing: Icon(Icons.arrow_forward_ios, color: Styles.customColor),
             onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => HomePages()));
+              // Navigator.push(context, MaterialPageRoute(builder: (context) => HomePages()));
             },
           ),
           Divider(color: Styles.seconderyColor,),

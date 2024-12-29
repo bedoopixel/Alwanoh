@@ -277,7 +277,13 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    if (discountedPrice != null) ...[
+                    if (_selectedQuantity != null) ...[
+                      Text(
+    '${quantities![_selectedQuantity]} YER',
+                        style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold, color: widget.customColor),
+                      ),
+                    ] else ...[
+
                       Text(
                         ' ${price?.toStringAsFixed(0) ?? 'N/A'} YER',
                         style: TextStyle(
@@ -289,12 +295,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                       ),
                       SizedBox(width: 12.0),
                       Text(
-                        '${discountedPrice.toStringAsFixed(0)} YER',
-                        style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold, color: widget.customColor),
-                      ),
-                    ] else ...[
-                      Text(
-                        ' ${price?.toStringAsFixed(0) ?? 'N/A'} YER',
+                        '${discountedPrice?.toStringAsFixed(0)} YER',
                         style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold, color: widget.customColor),
                       ),
                     ],
@@ -329,9 +330,9 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                               });
                             },
                             child: Container(
-                              height: 60,
+                              height: 40,
                               margin: const EdgeInsets.symmetric(horizontal: 8.0),
-                              padding: const EdgeInsets.all(12.0),
+                              padding: const EdgeInsets.all(9.0),
                               decoration: BoxDecoration(
                                 color: _selectedQuantity == entry.key ? widget.customColor : Colors.transparent,
                                 borderRadius: BorderRadius.circular(8.0),
@@ -340,24 +341,12 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                                   width: 1.5,
                                 ),
                               ),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    '${entry.key}مل ',
-                                    style: TextStyle(
-                                      color: _selectedQuantity == entry.key ? Colors.white : widget.customColor,
-                                    ),
-                                    textDirection: TextDirection.rtl, // For RTL layout
-                                  ),
-                                  Text(
-                                    '${entry.value}YER',
-                                    style: TextStyle(
-                                      color: _selectedQuantity == entry.key ? Colors.white : widget.customColor,
-                                    ),
-                                    textDirection: TextDirection.rtl, // For RTL layout
-                                  ),
-                                ],
+                              child: Text(
+                                '${entry.key}مل ',
+                                style: TextStyle(
+                                  color: _selectedQuantity == entry.key ? Colors.white : widget.customColor,
+                                ),
+                                textDirection: TextDirection.rtl, // For RTL layout
                               ),
                             ),
                           );
@@ -374,24 +363,17 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
       // Floating Action Button for Add to Cart
       floatingActionButton: _selectedQuantity != null
           ? Padding(
-        padding: const EdgeInsets.only(left: 20, right: 20),
+        padding: const EdgeInsets.only(left:30 , right: 0),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              '${quantities![_selectedQuantity]} YER',
-              style: TextStyle(
-                fontSize: 18.0,
-                fontWeight: FontWeight.bold,
-                color: widget.customColor,
-              ),
-            ),
+
             SizedBox(height: 8.0), // Space between price and button
             FloatingActionButton.extended(
               backgroundColor: widget.customColor,
               onPressed: _addToCart, // Call the add to cart function
-              icon: Icon(Icons.add_shopping_cart),
-              label: Text('Add to Cart'),
+              icon: Icon(Icons.shopping_cart,color: Colors.black,),
+              label: Text('Add to Cart',style: TextStyle(color: Colors.black),),
             ),
           ],
         ),
@@ -399,8 +381,8 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
           : FloatingActionButton.extended(
         backgroundColor: widget.customColor,
         onPressed: null, // Disable if no quantity is selected
-        icon: Icon(Icons.add_shopping_cart),
-        label: Text('Add to Cart'),
+        icon: Icon(Icons.shopping_cart_outlined,color: Colors.black,),
+        label: Text('Add to Cart',style: TextStyle(color: Colors.black),),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
 

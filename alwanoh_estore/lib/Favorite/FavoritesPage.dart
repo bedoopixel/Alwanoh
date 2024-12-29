@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import '../Product_Pages/ProductDetailsPage.dart';
+import '../Products/ProductDetailsPage.dart';
 import '../Serves/UserProvider.dart';
 import '../Thems/styles.dart';
 
@@ -28,16 +28,20 @@ class _FavoritePageState extends State<FavoritePage> {
       backgroundColor: Colors.black,
       body: Column(
         children: [
+          SizedBox(height: 60,),
           // Header with a Row
           Container(
             decoration: BoxDecoration(  borderRadius: BorderRadius.only(
               bottomLeft: Radius.circular(20),
               bottomRight: Radius.circular(20),
-            ),
-              color: Styles.customColor, ),
-            width: 200,
+              topRight:Radius.circular(20),
+              topLeft: Radius.circular(20),
 
-            padding: const EdgeInsets.only(top: 40,bottom: 10),
+            ),
+              border: Border.all(color: Styles.customColor,),
+            ),            width: 200,
+
+            padding: const EdgeInsets.only(top: 0,bottom: 0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -46,7 +50,7 @@ class _FavoritePageState extends State<FavoritePage> {
                 const Text(
                   'Favorites',
                   style: TextStyle(
-                    color: Colors.black,
+                    color: Styles.customColor,
                     fontSize: 30.0,
                     fontWeight: FontWeight.bold,
                   ),

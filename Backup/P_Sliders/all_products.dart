@@ -2,21 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
-import '../Product_Pages/ProductDetailsPage.dart';
+import '../Cart/Products/ProductDetailsPage.dart';
 
 import '../Thems/styles.dart';
 import '../Serves/UserProvider.dart';
 
-class ProductGridPage extends StatefulWidget {
+class AllProducts extends StatefulWidget {
   final String searchQuery;
   final List<Map<String, dynamic>> products;// Add searchQuery as a parameter
 
-  ProductGridPage({required this.products, required this.searchQuery});
+  AllProducts({required this.products, required this.searchQuery});
   @override
-  _ProductGridPageState createState() => _ProductGridPageState();
+  _AllProducts createState() => _AllProducts();
 }
 
-class _ProductGridPageState extends State<ProductGridPage> {
+class _AllProducts extends State<AllProducts> {
   @override
   Widget build(BuildContext context) {
     final selectedDocument = context.watch<UserProvider>().selectedDocument;
@@ -52,49 +52,76 @@ class _ProductGridPageState extends State<ProductGridPage> {
             if (!honeySnapshot.hasData) {
               return const Center(child: CircularProgressIndicator());
             }
+            final oilDocs = oilSnapshot.data!.docs.toList();
+            final honeyDocs = honeySnapshot.data!.docs.toList();
 
-            final oilDocs = oilSnapshot.data!.docs;
-            final honeyDocs = honeySnapshot.data!.docs;
+// Filter products based on searchQuery
+            final filteredOilDocs = oilDocs.where((doc) {
+              final data = doc.data() as Map<String, dynamic>?; // Cast to Map<String, dynamic>
+              if (data != null) {
+                final name = (data['name'] ?? '').toLowerCase();
+                final type = (data['type'] ?? '').toLowerCase();
+                final description = (data['description'] ?? '').toLowerCase();
+                // Check if the search query matches any of the fields (name, type, or description)
+                return name.contains(searchQuery) || type.contains(searchQuery) || description.contains(searchQuery);
+              }
+              return false;
+            }).toList();
 
-            final allProducts = oilDocs
-                .map((doc) => {
-              ...doc.data() as Map<String, dynamic>,
-              'id': doc.id,
-              'type': 'Oil',
-            })
-                .toList()
-              ..addAll(honeyDocs.map((doc) => {
+            final filteredHoneyDocs = honeyDocs.where((doc) {
+              final data = doc.data() as Map<String, dynamic>?; // Cast to Map<String, dynamic>
+              if (data != null) {
+                final name = (data['name'] ?? '').toLowerCase();
+                final type = (data['type'] ?? '').toLowerCase();
+                final description = (data['description'] ?? '').toLowerCase();
+                // Check if the search query matches any of the fields (name, type, or description)
+                return name.contains(searchQuery) || type.contains(searchQuery) || description.contains(searchQuery);
+              }
+              return false;
+            }).toList();
+
+
+
+// Combine the filtered oil and honey products
+            final allProducts = [
+              ...filteredOilDocs.map((doc) => {
+                ...doc.data() as Map<String, dynamic>,
+                'id': doc.id,
+                'type': 'Oil',
+              }),
+              ...filteredHoneyDocs.map((doc) => {
                 ...doc.data() as Map<String, dynamic>,
                 'id': doc.id,
                 'type': 'Honey',
-              }));
+              }),
+            ];
 
-            final filteredProducts = allProducts.where((product) {
-              final name = (product['name'] as String).toLowerCase();
-              return name.contains(searchQuery); // Filter logic
-            }).toList();
+
+
+
+
+
 
             return LayoutBuilder(
               builder: (context, constraints) {
 
                 int crossAxisCount = constraints.maxWidth > 1200 ? 8 : (constraints.maxWidth > 767 ? 5 : 2);
-                double childAspectRatio = constraints.maxWidth > 1024 ? 0.50 : (constraints.maxWidth > 767 ? 0.25 : 1.50);
+                double childAspectRatio = constraints.maxWidth > 1024 ? 0.50 : (constraints.maxWidth > 767 ? 0.90 : 0.70);
 
 
                 return GridView.builder(
                   shrinkWrap: true,
                   physics: ScrollPhysics(),
-                  scrollDirection: Axis.horizontal,
+                  scrollDirection: Axis.vertical,
                   padding: const EdgeInsets.all(10.0),
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount (
-
                     crossAxisSpacing: 10.0,
-                    mainAxisSpacing: 10.0,
-                    childAspectRatio: childAspectRatio, crossAxisCount: 1,
+                    mainAxisSpacing: 15.0,
+                    childAspectRatio: childAspectRatio, crossAxisCount: crossAxisCount,
                   ),
-                  itemCount: filteredProducts.length > 8 ? 6 : filteredProducts.length,
+                  itemCount: allProducts.length > 32 ? 16 : allProducts.length,
                   itemBuilder: (context, index) {
-                    final product = filteredProducts[index];
+                    final product = allProducts[index];
                     final List<String> imageUrls = [
                       product['image1'] as String? ?? '',
                       product['image2'] as String? ?? '',
@@ -290,7 +317,7 @@ class _ProductGridPageState extends State<ProductGridPage> {
                                                   mainAxisAlignment: MainAxisAlignment.end,
                                                   children: [
                                                     Text(
-                                                      'قسم المنتج',
+                                                      type,
                                                       style: TextStyle(
                                                         fontSize: 12.0,
                                                         fontWeight: FontWeight.bold,
@@ -324,8 +351,8 @@ class _ProductGridPageState extends State<ProductGridPage> {
                                           child: Center(
                                             child: Text(
                                               discountedPrice != null
-                                                  ? '\$${discountedPrice.toStringAsFixed(2)}'
-                                                  : '\$${price?.toStringAsFixed(2) ?? '0.00'}',
+                                                  ? '\YR ${discountedPrice.toStringAsFixed(0)}'
+                                                  : '\YR ${price?.toStringAsFixed(0) ?? ''}',
                                               style: TextStyle(
                                                 color: Colors.white,
                                                 fontWeight: FontWeight.bold,

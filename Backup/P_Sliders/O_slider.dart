@@ -2,21 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
-import '../Product_Pages/ProductDetailsPage.dart';
+import '../Cart/Products/ProductDetailsPage.dart';
 
 import '../Thems/styles.dart';
 import '../Serves/UserProvider.dart';
 
-class IsnewSlider extends StatefulWidget {
+class ProductGridPage extends StatefulWidget {
   final String searchQuery;
   final List<Map<String, dynamic>> products;// Add searchQuery as a parameter
 
-  IsnewSlider({required this.products, required this.searchQuery});
+  ProductGridPage({required this.products, required this.searchQuery});
   @override
   _ProductGridPageState createState() => _ProductGridPageState();
 }
 
-class _ProductGridPageState extends State<IsnewSlider> {
+class _ProductGridPageState extends State<ProductGridPage> {
   @override
   Widget build(BuildContext context) {
     final selectedDocument = context.watch<UserProvider>().selectedDocument;
@@ -52,15 +52,9 @@ class _ProductGridPageState extends State<IsnewSlider> {
             if (!honeySnapshot.hasData) {
               return const Center(child: CircularProgressIndicator());
             }
-            final oilDocs = oilSnapshot.data!.docs.where((doc) {
-              final data = doc.data() as Map<String, dynamic>;
-              return data['isNew'] == true;
-            }).toList();
 
-            final honeyDocs = honeySnapshot.data!.docs.where((doc) {
-              final data = doc.data() as Map<String, dynamic>;
-              return data['isNew'] == true;
-            }).toList();
+            final oilDocs = oilSnapshot.data!.docs;
+            final honeyDocs = honeySnapshot.data!.docs;
 
             final allProducts = oilDocs
                 .map((doc) => {
@@ -75,13 +69,10 @@ class _ProductGridPageState extends State<IsnewSlider> {
                 'type': 'Honey',
               }));
 
-
             final filteredProducts = allProducts.where((product) {
               final name = (product['name'] as String).toLowerCase();
-              final isNew = product['isNew'] as bool? ?? false;
-              return isNew && name.contains(searchQuery);
+              return name.contains(searchQuery); // Filter logic
             }).toList();
-
 
             return LayoutBuilder(
               builder: (context, constraints) {

@@ -1,501 +1,432 @@
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
-import 'Cart/CartPage.dart';
-import 'Favorite/FavoritesPage.dart';
-import 'P_Sliders/O_slider.dart';
-import 'P_Sliders/discount_slider.dart';
-import 'P_Sliders/isNew_slider.dart';
-import 'Product_Pages/Product_Card.dart';
-import 'Product_Pages/ProductsPage.dart';
-import 'Product_Pages/Slider_Page.dart';
-import 'Profile_Pages/PersonalScreenWidget.dart';
-import 'Thems/styles.dart';
-
-class HomePages extends StatefulWidget {
-
-  String? _imageUrl; // Allow null values initially
-
-  @override
-  _HomePageState createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePages> {
-  int _selectedIndex = 0;
-  late String? _imageUrl;
-  String _searchQuery = "";
-  List<Map<String, dynamic>> _products = [];
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-    // Handle navigation or actions based on the selected index
-  }
-  @override
-  void initState() {
-    super.initState();
-    _imageUrl = widget._imageUrl ?? ''; // Initialize with an empty string if null
-    if (_imageUrl == '') {
-      _loadImage(); // Load image only if it's not passed
-    }
-  }
-
-
-  Future<void> _loadImage() async {
-    try {
-      String downloadURL = await FirebaseStorage.instance
-          .refFromURL('gs://alwanoh-store.appspot.com/Home/p1.png')
-          .getDownloadURL();
-      print('Image URL: $downloadURL');
-      setState(() {
-        _imageUrl = downloadURL; // Update local imageUrl
-      });
-    } catch (e) {
-      print('Error fetching image from Firebase Storage: $e');
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      extendBody: true,
-      backgroundColor: Colors.transparent,
-      body: Stack(
-        children: [
-          // Scrollable content
-          Padding(
-            padding: const EdgeInsets.only(top: 150.0), // Add padding to prevent overlap with the fixed app bar
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  children: [
-                    NewProductsPage(),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 20,right: 20),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text('New', style: TextStyle(
-                            color: Styles.customColor,
-                            fontSize: 15.0,
-                            fontWeight: FontWeight.bold,
-                          ),),
-                          GestureDetector(
-                            onTap: (){
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => ProductsPage(filterType: 'isNew', category: 'Oil'),
-
-                                ),
-                              );
-
-                            },
-                            child: Text('More >>', style: TextStyle(
-                              color: Styles.customColor,
-                              fontSize: 15.0,
-                              fontWeight: FontWeight.bold,
-                            ),),
-                          )
-                        ],
-                      ),
-                    ),
-                    Container(
-                      height: MediaQuery.of(context).size.height * 0.3, // Adjust the height as needed
-                      child: ProductGridPage(searchQuery: _searchQuery, products: _products),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 20,right: 20),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text('Offers', style: TextStyle(
-                            color: Styles.customColor,
-                            fontSize: 15.0,
-                            fontWeight: FontWeight.bold,
-                          ),),
-                          GestureDetector(
-                            onTap: (){
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => ProductsPage( category: '', filterType: 'discount',),
-                                ),
-                              );
-                            },
-                            child: Text('More >>', style: TextStyle(
-                              color: Styles.customColor,
-                              fontSize: 15.0,
-                              fontWeight: FontWeight.bold,
-                            ),),
-                          )
-                        ],
-                      ),
-                    ),
-                    Container(
-                      height: MediaQuery.of(context).size.height * 0.3, // Adjust the height as needed
-                      child: IsnewSlider(searchQuery: _searchQuery, products: _products),
-                    ),
-                    NewProductsPage(),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 20,right: 20),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text('All', style: TextStyle(
-                            color: Styles.customColor,
-                            fontSize: 15.0,
-                            fontWeight: FontWeight.bold,
-                          ),),
-                          GestureDetector(
-                            onTap: (){
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => ProductsPage(filterType: 'all', category: 'all'),
-
-                                ),
-                              );
-
-                            },
-                            child: Text('More >>', style: TextStyle(
-                              color: Styles.customColor,
-                              fontSize: 15.0,
-                              fontWeight: FontWeight.bold,
-                            ),),
-                          )
-                        ],
-                      ),
-                    ),
-                    Container(
-                      height: MediaQuery.of(context).size.height * 0.3, // Adjust the height as needed
-                      child: DiscountSlider(searchQuery: _searchQuery, products: _products),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          // Fixed custom app bar with search bar
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: _buildCustomAppBarWithSearchBar(context),
-          ),
-        ],
-      ),
-      bottomNavigationBar: CustomBottomNavBar(
-        selectedIndex: _selectedIndex,
-        onItemTapped: _onItemTapped,
-      ),
-    );
-  }
-
-  Widget _buildCustomAppBarWithSearchBar(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
-    double screenH = MediaQuery.of(context).size.height;
-    double fontSize = screenWidth > 600 ? 14.0 : 16.0; // حجم الخط بناءً على حجم الشاشة
-    double iconSize = screenWidth > 600 ? 24.0 : 20.0; // حجم الأيقونة بناءً على حجم الشاشة
-    EdgeInsets padding = screenWidth > 600
-        ? EdgeInsets.symmetric(horizontal: 32.0) // تباعد أكبر للشاشات الكبيرة
-        : EdgeInsets.symmetric(horizontal: 16.0); // تباعد أصغر للشاشات الصغيرة
-
-    // التحكم في عرض شريط البحث
-    double searchBarWidth = screenWidth > 1024 ? screenWidth * 0.2 : screenWidth * 0.95;
-    double containerWidth = screenWidth > 1024 ? screenWidth * 0.75 : screenWidth;
-
-    return Container(
-      color: Colors.black,
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        children: [
-          Wrap(
-
-            alignment: WrapAlignment.spaceBetween,
-            children: [
-              Container(
-                width: containerWidth,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        _imageUrl == null
-                            ? CircularProgressIndicator()
-                            : Image.network(
-                          _imageUrl!,
-                          fit: BoxFit.contain,
-                          width: 75,
-                          height: 75,
-                          loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
-                            if (loadingProgress == null) return child;
-                            return Center(
-                              child: CircularProgressIndicator(
-                                value: loadingProgress.expectedTotalBytes != null
-                                    ? loadingProgress.cumulativeBytesLoaded / (loadingProgress.expectedTotalBytes ?? 1)
-                                    : null,
-                              ),
-                            );
-                          },
-                          errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
-                            return Text('Error loading image', style: TextStyle(color: Colors.red));
-                          },
-                        ),
-
-                        SizedBox(width: 10),
-                        Container(
-                          width: MediaQuery.of(context).size.width <= 600 ? 150.0 : null,
-                          child: Text(
-                            'ALWANOH FOR YEMENI HONEY',
-                            style: TextStyle(
-                              color: Styles.customColor,
-                              fontSize: 18.0,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    Center(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          if (screenWidth >= 1200) ...[
-                            SizedBox(width: 10),
-                            // أيقونة المفضلة
-                            IconButton(
-                              icon: Icon(Icons.favorite, color: Styles.customColor, size: 40),
-                              onPressed: () {
-                                // انتقل إلى صفحة المفضلة
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => FavoritePage(),
-                                  ),
-                                );
-                              },
-                            ),
-                            // أيقونة السلة
-                            IconButton(
-                              icon: Icon(Icons.shopping_cart, color: Styles.customColor, size: 40),
-                              onPressed: () {
-                                // انتقل إلى صفحة السلة
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => CartPage(),
-                                  ),
-                                );
-                              },
-                            ),
-                          ],
-                          // أيقونة الملف الشخصي
-                          Padding(
-                            padding: const EdgeInsets.only(right: 10, left: 5),
-                            child: GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => PersonalScreenWidget(),
-                                  ),
-                                );
-                              },
-                              child: CircleAvatar(
-                                backgroundColor: Styles.customColor,
-                                radius: 20,
-                                child: Icon(
-                                  Icons.person,
-                                  color: Colors.black,
-                                  size: 24, // تغيير الحجم إلى 24
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-
-                ),
-              ),
-
-              Padding(
-                padding: const EdgeInsets.only(top: 15,left: 5),
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    maxWidth: searchBarWidth,
-                    maxHeight: 45,
-                  ),
-                  child: TextField(
-                    onChanged: (query) {
-                      setState(() {
-                        _searchQuery = query; // Update the search query
-                      });
-                    },
-                    style: TextStyle(color: Styles.customColor, fontSize: fontSize),
-                    decoration: InputDecoration(
-                      hintText: 'Search...',
-                      hintStyle: TextStyle(color: Colors.white54, ),
-                      prefixIcon: Icon(Icons.search, color: Styles.customColor, size: iconSize),
-                      filled: true,
-                      fillColor: Colors.grey[900],
-                      border: OutlineInputBorder(
-                        borderSide: BorderSide(color: Styles.customColor),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Styles.customColor,),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Styles.customColor,),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-
-
-class CustomBottomNavBar extends StatelessWidget {
-  final int selectedIndex;
-  final Function(int) onItemTapped;
-
-  const CustomBottomNavBar({
-    required this.selectedIndex,
-    required this.onItemTapped,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 30), // Adds space on left and right
-        child: BottomAppBar(
-          color: Colors.transparent,
-          // Set to transparent for a floating effect
-          elevation: 0, // Remove shadow
-          child: Center(
-
-            child: Container(
-color: Colors.transparent,
-              height: MediaQuery.of(context).size.height * 0.09,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Stack with rounded container and oval overlap
-                  Stack(
-
-                    clipBehavior: Clip.none,
-                    children: [
-                      Container(
-                        width: 250,
-                        height: 60,
-                        decoration: BoxDecoration(
-                          color: Color(0xFF88683E),
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(27.5),
-                            bottomLeft: Radius.circular(27.5),
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            IconButton(
-                              icon: Icon(Icons.person),
-                              onPressed: () => onItemTapped(3),
-                              color: Colors.black,
-                            ),
-                            IconButton(
-                              icon: Icon(Icons.favorite),
-                              onPressed: () => onItemTapped(1),
-                              color: Colors.black,
-                            ),
-                            IconButton(
-                              icon: Icon(Icons.shopping_cart),
-                              onPressed: () => onItemTapped(2),
-                              color: Colors.black,
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      // Positioned oval with SVG icon
-                      Positioned(
-                        right: -37,
-                        top: -17.95,
-                        child: ClipOval(
-                          child: Container(
-                            width: 63,
-                            height: 99,
-                            child: SvgPicture.string(
-                              '''
-                          <svg xmlns="http://www.w3.org/2000/svg" width="85" height="85" viewBox="0 0 90 90">
-                            <defs>
-                              <style>
-                                .cls-1 {
-                                  fill: #88683e;
-                                  fill-rule: evenodd;
-                                }
-                              </style>
-                            </defs>
-                            <path class="cls-1" d="M40.107,40.12A39.976,39.976,0,0,0,80.12,80H0V0H80V0.12A40,40,0,0,0,40.107,40.12Z"/>
-                          </svg>
-                          ''',
-                              width: 90,
-                              height: 90,
-                              color: Color(0xFF88683E),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  // Home icon with rounded circle
-                  Transform.translate(
-                    offset: Offset(5, 0),
-                    child: Container(
-                      width: 50,
-                      height: 50,
-                      decoration: BoxDecoration(
-                        color: Color(0xFF88683E),
-                        borderRadius: BorderRadius.circular(25),
-                      ),
-                      child: IconButton(
-                        icon: Icon(Icons.home),
-                        onPressed: () => onItemTapped(0),
-                        color: Colors.black,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-
-
-
-
-
-
-
+// import 'package:flutter/material.dart';
+// import 'package:cloud_firestore/cloud_firestore.dart';
+// import 'package:provider/provider.dart';
+// import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+// import 'Cart/Products/ProductDetailsPage.dart';
+//
+// import '../Thems/styles.dart';
+// import '../Serves/UserProvider.dart';
+//
+// class AlllProducts extends StatefulWidget {
+//   final String searchQuery;
+//   final List<Map<String, dynamic>> products;// Add searchQuery as a parameter
+//
+//   AlllProducts({required this.products, required this.searchQuery});
+//   @override
+//   _AlllProducts createState() => _AlllProducts();
+// }
+//
+// class _AlllProducts extends State<AlllProducts> {
+//   @override
+//   Widget build(BuildContext context) {
+//     final selectedDocument = context.watch<UserProvider>().selectedDocument;
+//     final userId = context.watch<UserProvider>().userId;
+//     var searchQuery = widget.searchQuery.toLowerCase();
+//
+//     if (selectedDocument == null) {
+//       return const Center(child: Text('No document selected', style: TextStyle(color: Styles.customColor)));
+//     }
+//
+//     final oilStream = FirebaseFirestore.instance
+//         .collection('Product')
+//         .doc(selectedDocument)
+//         .collection('Oil')
+//         .snapshots();
+//
+//     final honeyStream = FirebaseFirestore.instance
+//         .collection('Product')
+//         .doc(selectedDocument)
+//         .collection('Honey')
+//         .snapshots();
+//
+//     return StreamBuilder(
+//       stream: oilStream,
+//       builder: (context, AsyncSnapshot<QuerySnapshot> oilSnapshot) {
+//         if (!oilSnapshot.hasData) {
+//           return const Center(child: CircularProgressIndicator());
+//         }
+//
+//         return StreamBuilder(
+//           stream: honeyStream,
+//           builder: (context, AsyncSnapshot<QuerySnapshot> honeySnapshot) {
+//             if (!honeySnapshot.hasData) {
+//               return const Center(child: CircularProgressIndicator());
+//             }
+//             final oilDocs = oilSnapshot.data!.docs.toList();
+//             final honeyDocs = honeySnapshot.data!.docs.toList();
+//
+// // Filter products based on searchQuery
+//             final filteredOilDocs = oilDocs.where((doc) {
+//               final data = doc.data() as Map<String, dynamic>?; // Cast to Map<String, dynamic>
+//               if (data != null) {
+//                 final name = (data['name'] ?? '').toLowerCase();
+//                 final type = (data['type'] ?? '').toLowerCase();
+//                 final description = (data['description'] ?? '').toLowerCase();
+//                 // Check if the search query matches any of the fields (name, type, or description)
+//                 return name.contains(searchQuery) || type.contains(searchQuery) || description.contains(searchQuery);
+//               }
+//               return false;
+//             }).toList();
+//
+//             final filteredHoneyDocs = honeyDocs.where((doc) {
+//               final data = doc.data() as Map<String, dynamic>?; // Cast to Map<String, dynamic>
+//               if (data != null) {
+//                 final name = (data['name'] ?? '').toLowerCase();
+//                 final type = (data['type'] ?? '').toLowerCase();
+//                 final description = (data['description'] ?? '').toLowerCase();
+//                 // Check if the search query matches any of the fields (name, type, or description)
+//                 return name.contains(searchQuery) || type.contains(searchQuery) || description.contains(searchQuery);
+//               }
+//               return false;
+//             }).toList();
+//
+//
+//
+// // Combine the filtered oil and honey products
+//             final allProducts = [
+//               ...filteredOilDocs.map((doc) => {
+//                 ...doc.data() as Map<String, dynamic>,
+//                 'id': doc.id,
+//                 'type': 'Oil',
+//               }),
+//               ...filteredHoneyDocs.map((doc) => {
+//                 ...doc.data() as Map<String, dynamic>,
+//                 'id': doc.id,
+//                 'type': 'Honey',
+//               }),
+//             ];
+//
+//
+//
+//
+//
+//
+//
+//             return LayoutBuilder(
+//               builder: (context, constraints) {
+//
+//                 int crossAxisCount = constraints.maxWidth > 1200 ? 8 : (constraints.maxWidth > 767 ? 5 : 2);
+//                 double childAspectRatio = constraints.maxWidth > 1024 ? 0.50 : (constraints.maxWidth > 767 ? 0.90 : 0.70);
+//
+//
+//                 return GridView.builder(
+//                   shrinkWrap: true,
+//                   physics: ScrollPhysics(),
+//                   scrollDirection: Axis.vertical,
+//                   padding: const EdgeInsets.all(10.0),
+//                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount (
+//                     crossAxisSpacing: 10.0,
+//                     mainAxisSpacing: 15.0,
+//                     childAspectRatio: childAspectRatio, crossAxisCount: crossAxisCount,
+//                   ),
+//                   itemCount: allProducts.length > 32 ? 16 : allProducts.length,
+//                   itemBuilder: (context, index) {
+//                     final product = allProducts[index];
+//                     final List<String> imageUrls = [
+//                       product['image1'] as String? ?? '',
+//                       product['image2'] as String? ?? '',
+//                       product['image3'] as String? ?? '',
+//                       product['image4'] as String? ?? '',
+//                     ].where((url) => url.isNotEmpty).toList();
+//
+//                     final name = product['name'] as String? ?? 'No Name';
+//                     final price = product['price'] != null ? double.tryParse(product['price'].toString()) : null;
+//                     final discountedPrice = product['discountedPrice'] != null ? double.tryParse(product['discountedPrice'].toString()) : null;
+//                     final rating = product['rating'];
+//                     final parsedRating = (rating is int) ? rating : int.tryParse(rating?.toString() ?? '') ?? 0;
+//                     final type = product['type'] as String? ?? 'Unknown';
+//                     final isNew = product['isNew'] as bool? ?? false;
+//
+//                     final quantities = product['quantities'] as Map<String, dynamic>? ?? {};
+//                     final quantityTexts = quantities.entries.map((entry) => '${entry.key}: ${entry.value}').join(', ');
+//
+//                     final discount = product['discount'] != null
+//                         ? (product['discount'] is num ? (product['discount'] as num).toString() : product['discount'].toString())
+//                         : '';
+//
+//                     final PageController pageController = PageController();
+//                     bool isFavorite = false;
+//
+//                     return FutureBuilder<bool>(
+//                       future: userId != null ? _isProductFavorite(userId, product['id'] as String) : Future.value(false),
+//                       builder: (context, snapshot) {
+//                         if (!snapshot.hasData) {
+//                           return const Center(child: CircularProgressIndicator());
+//                         }
+//                         isFavorite = snapshot.data ?? false;
+//
+//                         return LayoutBuilder(
+//                           builder: (context, constraints) {
+//                             double fontSize = constraints.maxWidth > 1024 ? 14.0 : 12.0;
+//                             double imageHeight = constraints.maxWidth > 1024 ? 50 : 50;
+//
+//                             return GestureDetector(
+//                               onTap: () {
+//                                 Navigator.push(
+//                                   context,
+//                                   MaterialPageRoute(
+//                                     builder: (context) => ProductDetailsPage(product: product),
+//                                   ),
+//                                 );
+//                               },
+//                               child: Card(
+//                                 elevation: 5,
+//                                 shape: RoundedRectangleBorder(
+//                                   borderRadius: BorderRadius.circular(15.0),
+//                                   side: BorderSide(
+//                                     color: Styles.customColor,
+//                                     width: 2.0,
+//                                   ),
+//                                 ),
+//                                 color: Colors.black,
+//                                 child: Stack(
+//                                   children: [
+//                                     Column(
+//                                       crossAxisAlignment: CrossAxisAlignment.center,
+//                                       children: [
+//                                         Expanded(
+//                                           child: ClipRRect(
+//                                             borderRadius: const BorderRadius.vertical(top: Radius.circular(15.0)),
+//                                             child: Stack(
+//                                               children: [
+//                                                 PageView.builder(
+//                                                   controller: pageController,
+//                                                   itemCount: imageUrls.length,
+//                                                   itemBuilder: (context, imageIndex) {
+//                                                     final imageUrl = imageUrls[imageIndex];
+//                                                     return Padding(
+//                                                       padding: const EdgeInsets.all(8.0),
+//                                                       child: Container(
+//                                                         height: imageHeight,
+//                                                         decoration: BoxDecoration(
+//                                                           color: Styles.customColor.withOpacity(0.5),
+//                                                           borderRadius: BorderRadius.circular(10.0),
+//                                                         ),
+//                                                         child: ClipRRect(
+//                                                           borderRadius: BorderRadius.circular(10.0),
+//                                                           child: Opacity(
+//                                                             opacity: 0.7,
+//                                                             child: Image.network(
+//                                                               imageUrl,
+//                                                               fit: BoxFit.cover,
+//                                                               width: double.infinity,
+//                                                               height: imageHeight,
+//                                                             ),
+//                                                           ),
+//                                                         ),
+//                                                       ),
+//                                                     );
+//                                                   },
+//                                                 ),
+//                                                 if (discount.isNotEmpty)
+//                                                   Positioned(
+//                                                     bottom: 30.0,
+//                                                     right: 18.0,
+//                                                     child: Container(
+//                                                       padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+//                                                       decoration: BoxDecoration(
+//                                                         color: Colors.green,
+//                                                         borderRadius: BorderRadius.circular(12.0),
+//                                                       ),
+//                                                       child: Text(
+//                                                         '$discount% Off',
+//                                                         style: const TextStyle(
+//                                                           color: Colors.white,
+//                                                           fontWeight: FontWeight.bold,
+//                                                           fontSize: 12.0,
+//                                                         ),
+//                                                       ),
+//                                                     ),
+//                                                   ),
+//                                                 if (isNew)
+//                                                   Positioned(
+//                                                     top: 14.0,
+//                                                     left: 16.0,
+//                                                     child: Container(
+//                                                       padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+//                                                       decoration: BoxDecoration(
+//                                                         color: Colors.red,
+//                                                         borderRadius: BorderRadius.circular(12.0),
+//                                                       ),
+//                                                       child: const Text(
+//                                                         'New',
+//                                                         style: TextStyle(
+//                                                           color: Colors.white,
+//                                                           fontWeight: FontWeight.bold,
+//                                                           fontSize: 12.0,
+//                                                         ),
+//                                                       ),
+//                                                     ),
+//                                                   ),
+//                                                 Positioned(
+//                                                   bottom: 15.0,
+//                                                   left: 0,
+//                                                   right: 0,
+//                                                   child: Center(
+//                                                     child: Padding(
+//                                                       padding: const EdgeInsets.all(0.2),
+//                                                       child: SmoothPageIndicator(
+//                                                         controller: pageController,
+//                                                         count: imageUrls.length,
+//                                                         effect: ExpandingDotsEffect(
+//                                                           activeDotColor: Styles.customColor,
+//                                                           dotColor: Styles.customColor50,
+//                                                           dotHeight: 5,
+//                                                           dotWidth: 5,
+//                                                           spacing: 2.5,
+//                                                         ),
+//                                                       ),
+//                                                     ),
+//                                                   ),
+//                                                 ),
+//
+//
+//                                               ],
+//                                             ),
+//                                           ),
+//                                         ),
+//
+//                                         Padding(
+//                                           padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 0.0),
+//                                           child: Row(
+//                                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//                                             children: [
+//                                               Container(
+//                                                 child: Row(
+//                                                   mainAxisAlignment: MainAxisAlignment.start,
+//                                                   children: [
+//                                                     Icon(
+//                                                       parsedRating > 0 ? Icons.star_rounded : Icons.star_border_rounded,
+//                                                       color: Styles.customColor,
+//                                                       size: 20,
+//                                                     ),
+//                                                     SizedBox(width: 3),
+//                                                     Text(
+//                                                       '$parsedRating.5',
+//                                                       style: TextStyle(
+//                                                         fontSize: 13.0,
+//                                                         fontWeight: FontWeight.bold,
+//                                                         color: Styles.customColor,
+//                                                       ),
+//                                                     ),
+//                                                   ],
+//                                                 ),
+//                                               ),
+//                                               Container(
+//                                                 child: Row(
+//                                                   mainAxisAlignment: MainAxisAlignment.end,
+//                                                   children: [
+//                                                     Text(
+//                                                       type,
+//                                                       style: TextStyle(
+//                                                         fontSize: 12.0,
+//                                                         fontWeight: FontWeight.bold,
+//                                                         color: Styles.customColor,
+//                                                       ),
+//                                                     ),
+//                                                   ],
+//                                                 ),
+//                                               ),
+//                                             ],
+//                                           ),
+//                                         ),
+//                                         Padding(
+//                                           padding: const EdgeInsets.all(8.0),
+//                                           child: Text(
+//                                             name,
+//                                             style: TextStyle(
+//                                               color: Colors.white,
+//                                               fontWeight: FontWeight.bold,
+//                                               fontSize: fontSize,
+//                                             ),
+//                                           ),
+//                                         ),
+//                                         Container(
+//                                           width: double.infinity,
+//                                           decoration: BoxDecoration(
+//                                             color: Styles.customColor,
+//                                             borderRadius: BorderRadius.vertical(bottom: Radius.circular(15.0)),
+//                                           ),
+//                                           padding: const EdgeInsets.all(8.0),
+//                                           child: Center(
+//                                             child: Text(
+//                                               discountedPrice != null
+//                                                   ? '\YR ${discountedPrice.toStringAsFixed(0)}'
+//                                                   : '\YR ${price?.toStringAsFixed(0) ?? ''}',
+//                                               style: TextStyle(
+//                                                 color: Colors.white,
+//                                                 fontWeight: FontWeight.bold,
+//                                                 fontSize: fontSize + 8, // Slightly larger for price
+//                                               ),
+//                                             ),
+//                                           ),
+//                                         ),
+//                                       ],
+//                                     ),
+//                                     Positioned(
+//                                       top: 8.0,
+//                                       right: 8.0,
+//                                       child: IconButton(
+//                                         icon: Icon(
+//                                           isFavorite ? Icons.favorite : Icons.favorite_border,
+//                                           color: Colors.red,
+//                                         ),
+//                                         onPressed: () async {
+//                                           setState(() {
+//                                             isFavorite = !isFavorite;
+//                                           });
+//                                           if (isFavorite) {
+//                                             await _addToFavorites(userId!, product['id'] as String,product);
+//                                           } else {
+//                                             await _removeFromFavorites(userId!, product['id'] as String);
+//                                           }
+//                                         },
+//                                       ),
+//                                     ),
+//                                   ],
+//                                 ),
+//                               ),
+//                             );
+//                           },
+//                         );
+//                       },
+//                     );
+//                   },
+//                 );
+//               },
+//             );
+//           },
+//         );
+//       },
+//     );
+//   }
+//
+//   Future<bool> _isProductFavorite(String userId, String productId) async {
+//     final doc = await FirebaseFirestore.instance
+//         .collection('users')
+//         .doc(userId)
+//         .collection('favorites')
+//         .doc(productId)
+//         .get();
+//     return doc.exists;
+//   }
+//
+//   Future<void> _addToFavorites(String userId, String productId, Map<String, dynamic> product) async {
+//     await FirebaseFirestore.instance
+//         .collection('users')
+//         .doc(userId)
+//         .collection('favorites')
+//         .doc(productId)
+//         .set(product); // Store the product data
+//   }
+//
+//
+//   Future<void> _removeFromFavorites(String userId, String productId) async {
+//     await FirebaseFirestore.instance
+//         .collection('users')
+//         .doc(userId)
+//         .collection('favorites')
+//         .doc(productId)
+//         .delete();
+//   }
+// }

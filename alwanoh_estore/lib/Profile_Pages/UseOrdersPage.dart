@@ -30,7 +30,7 @@ class UseOrdersPage extends StatelessWidget {
             }
 
             if (snapshot.hasError) {
-              return Center(child: Text('Error: ${snapshot.error}'));
+              return Center(child: Text('Error: ${snapshot.error}', style: TextStyle(color: Colors.red)));
             }
 
             if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
@@ -38,15 +38,15 @@ class UseOrdersPage extends StatelessWidget {
             }
 
             // Extracting orders data for further processing
-            var orders = snapshot.data!.docs;
+            var order_management = snapshot.data!.docs;
 
             return Column(
               children: [
                 Expanded(
                   child: ListView.builder(
-                    itemCount: orders.length,
+                    itemCount: order_management.length,
                     itemBuilder: (context, index) {
-                      var order = orders[index];
+                      var order = order_management[index];
                       return Container(
                         margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                         padding: const EdgeInsets.all(16.0),
@@ -57,8 +57,7 @@ class UseOrdersPage extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            FutureBuilder<Map<String, dynamic>?>(
-                              // Fetch address
+                            FutureBuilder<Map<String, dynamic>?>( // Fetch address
                               future: _fetchAddressById(order['address_id']),
                               builder: (context, snapshot) {
                                 if (snapshot.connectionState == ConnectionState.waiting) {
@@ -71,7 +70,6 @@ class UseOrdersPage extends StatelessWidget {
                                   return Text('Address not found.');
                                 }
 
-                                // Address data available
                                 var address = snapshot.data!;
                                 return Container(
                                   width: MediaQuery.of(context).size.width * 0.8,
@@ -111,41 +109,41 @@ class UseOrdersPage extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Divider(color: Styles.customColor),
-                      _buildCostDisplay(orders), // Pass orders to the cost display
+                      _buildCostDisplay(order_management), // Pass orders to the cost display
                       SizedBox(height: 16), // Add some space before the button
                       Center(
                         child: Container(
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Styles.customColor, width: 2), // Set border color and width
-                            borderRadius: BorderRadius.circular(30), // Ensure rounded corners
-                          ),
-                          child: ElevatedButton(
-                            onPressed: () async {
-                              final user = FirebaseAuth.instance.currentUser;
-                              if (user != null) {
-                                // Iterate through the orders to save each one
-                                for (var order in orders) {
-                                  DocumentReference orderRef = order.reference; // Get the reference to the order
-                                  await _saveOrderToFirestore(orderRef, user.uid, orders);
-                                }
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (context) => OrdersManagementPage()),
-                                );
-                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Order placed successfully')));
-                              } else {
-                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('User not authenticated')));
-                              }
-                            },
-                            child: Text('Order', style: TextStyle(color: Colors.white)),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.transparent,
-                              minimumSize: Size(200, 50),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Styles.customColor, width: 2), // Set border color and width
+                              borderRadius: BorderRadius.circular(30), // Ensure rounded corners
                             ),
-                          )
+                            child: ElevatedButton(
+                              onPressed: () async {
+                                final user = FirebaseAuth.instance.currentUser;
+                                if (user != null) {
+                                  // Iterate through the orders to save each one
+                                  for (var order in order_management) {
+                                    DocumentReference orderRef = order.reference; // Get the reference to the order
+                                    await _saveOrderToFirestore(orderRef, user.uid, order_management);
+                                  }
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => OrdersManagementPage()),
+                                  );
+                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Order placed successfully')));
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('User not authenticated')));
+                                }
+                              },
+                              child: Text('Order', style: TextStyle(color: Colors.white)),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.transparent,
+                                minimumSize: Size(200, 50),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                            )
                         ),
                       ),
                     ],
@@ -203,7 +201,7 @@ class UseOrdersPage extends StatelessWidget {
     yield* FirebaseFirestore.instance
         .collection('users')
         .doc(userId)
-        .collection('orders')
+        .collection('order_management')
         .snapshots();
   }
 
@@ -288,9 +286,10 @@ class UseOrdersPage extends StatelessWidget {
     return format.format(amount);
   }
 
-// Method to save order to Firestore and delete from orders collection
-  // Method to save order to Firestore and delete from orders collection
-  Future<void> _saveOrderToFirestore(DocumentReference orderRef, String userId, List<QueryDocumentSnapshot> orders) async {
+  Future<void> _saveOrderToFirestore(
+      DocumentReference orderRef,
+      String userId,
+      List<QueryDocumentSnapshot> orders,) async {
     double totalCost = 0.0;
     double deliveryCost = 1000.0;
 
@@ -301,14 +300,16 @@ class UseOrdersPage extends StatelessWidget {
 
     // Flatten cart items (avoiding nested arrays)
     List<Map<String, dynamic>> allCartItems = [];
+    String? addressId; // To store the address ID
     for (var order in orders) {
       List<dynamic> cartItems = order['cart_items'];
+      addressId = order['address_id']; // Fetch the address_id from the order
       cartItems.forEach((item) {
         allCartItems.add(Map<String, dynamic>.from(item));
       });
     }
 
-    // Create an order object with relevant fields
+    // Create an order object with relevant fields, including address_id
     Map<String, dynamic> orderData = {
       'cart_items': allCartItems,
       'total_cost': totalCost,
@@ -316,6 +317,7 @@ class UseOrdersPage extends StatelessWidget {
       'final_total': totalCost + deliveryCost,
       'timestamp': Timestamp.now(),
       'status': 'Done', // Set the order status
+      'address_id': addressId, // Save the address_id
     };
 
     // Save order in Firestore under 'users/{userId}/order_management'
@@ -332,23 +334,13 @@ class UseOrdersPage extends StatelessWidget {
     await _clearUserCart(userId);
   }
 
-// Method to clear the user's cart
-  Future<void> _clearUserCart(String userId) async {
-    // Reference to the cart collection
-    var cartCollection = FirebaseFirestore.instance.collection('users').doc(userId).collection('cart');
 
-    // Get all documents in the cart collection
+  Future<void> _clearUserCart(String userId) async {
+    var cartCollection = FirebaseFirestore.instance.collection('users').doc(userId).collection('cart');
     var cartSnapshot = await cartCollection.get();
 
-    // Check if cart has items and delete them
     for (var doc in cartSnapshot.docs) {
       await doc.reference.delete();
     }
   }
-
-
-
-
-
-
 }

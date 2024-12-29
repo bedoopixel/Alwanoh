@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart'; // Import Google Maps package
 import '../Thems/styles.dart';
 import 'UseOrdersPage.dart'; // Import your Styles class
 
@@ -57,6 +58,9 @@ class _SelectAddressPageState extends State<SelectAddressPage> {
               itemCount: snapshot.data!.docs.length,
               itemBuilder: (context, index) {
                 var address = snapshot.data!.docs[index];
+                GeoPoint? location = address['location'] as GeoPoint?;
+                LatLng? latLng = location != null ? LatLng(location.latitude, location.longitude) : null;
+
                 return GestureDetector(
                   onTap: () {
                     setState(() {
@@ -84,16 +88,78 @@ class _SelectAddressPageState extends State<SelectAddressPage> {
                         ),
                       ],
                     ),
-                    child: ListTile(
-                      title: Text('${address['type']}', style: TextStyle(color: Styles.primaryColor)),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Description: ${address['description']}', style: TextStyle(color: Styles.primaryColor)),
-                          Text('Phone: ${address['phone_number']}', style: TextStyle(color: Styles.primaryColor)),
-                        ],
-                      ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Address Details (ListTile)
+                        Expanded(
+                          flex: 2, // Allocate 2/3 of the row width for the details
+                          child: ListTile(
+                            title: Text(
+                              '${address['type']}',
+                              style: TextStyle(color: Styles.primaryColor),
+                            ),
+                            subtitle: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                SizedBox(height: 5,),
+                                Text(
+                                  'Description: ${address['description']}',
+                                  style: TextStyle(color: Styles.primaryColor),
+                                ),
+                                SizedBox(height: 10,),
+                                Text(
+                                  'Phone: ${address['phone_number']}',
+                                  style: TextStyle(color: Styles.primaryColor),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 10), // Add spacing between details and the map
+                        // Map or "Location not available" message
+                        Expanded(
+                          flex: 1, // Allocate 1/3 of the row width for the map or message
+                          child: latLng != null
+                              ? Container(
+                            width: 70, // Ensure width and height are equal for a circle
+                            height: 90, // Ensure height matches the width
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle, // Circular shape
+                              border: Border.all(color: Styles.customColor),
+                            ),
+                            child: ClipOval( // Clip content to a circular shape
+                              child: GoogleMap(
+                                initialCameraPosition: CameraPosition(
+                                  target: latLng,
+                                  zoom: 14.0,
+                                ),
+                                markers: {
+                                  Marker(
+                                    markerId: MarkerId('address-$index'),
+                                    position: latLng,
+                                  ),
+                                },
+                                zoomControlsEnabled: false,
+                                scrollGesturesEnabled: false,
+                                rotateGesturesEnabled: false,
+                                tiltGesturesEnabled: false,
+                              ),
+                            ),
+                          )
+                              : Center(
+                            child: Text(
+                              'Location not available',
+                              style: TextStyle(color: Styles.primaryColor),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+
+                      ],
                     ),
+
                   ),
                 );
               },
@@ -152,7 +218,6 @@ class _SelectAddressPageState extends State<SelectAddressPage> {
       return; // Exit the function
     }
 
-    // Create order data
     var orderData = {
       'user_id': userId,
       'address_id': _selectedAddressId,
@@ -162,7 +227,6 @@ class _SelectAddressPageState extends State<SelectAddressPage> {
         } else if (item is DocumentSnapshot) {
           return item.data() as Map<String, dynamic>; // Convert Firestore document to map
         }
-        // Handle other cases if necessary
         throw Exception('Invalid item type: ${item.runtimeType}'); // Raise an error for invalid types
       }).toList(),
       'payment_method': widget.selectedPaymentMethod,
@@ -175,15 +239,15 @@ class _SelectAddressPageState extends State<SelectAddressPage> {
       await FirebaseFirestore.instance
           .collection('users')
           .doc(userId)
-          .collection('orders')
+          .collection('order_management')
           .add(orderData);
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Order saved successfully!')),
       );
 
-      // Optionally, navigate back or clear selection
-      Navigator.push(
+      // Navigate to UseOrdersPage after saving the order, replacing the current screen
+      Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => UseOrdersPage()),
       );
@@ -194,25 +258,4 @@ class _SelectAddressPageState extends State<SelectAddressPage> {
     }
   }
 
-
-
-
-
 }
-
-class CartItem {
-  final String id;
-  final String name;
-  final double price;
-
-  CartItem({required this.id, required this.name, required this.price});
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'name': name,
-      'price': price,
-    };
-  }
-}
-

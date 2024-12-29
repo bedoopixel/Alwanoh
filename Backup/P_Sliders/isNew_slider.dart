@@ -2,21 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
-import '../Product_Pages/ProductDetailsPage.dart';
+import '../Cart/Products/ProductDetailsPage.dart';
 
 import '../Thems/styles.dart';
 import '../Serves/UserProvider.dart';
 
-class DiscountSlider extends StatefulWidget {
+class IsnewSlider extends StatefulWidget {
   final String searchQuery;
   final List<Map<String, dynamic>> products;// Add searchQuery as a parameter
 
-  DiscountSlider({required this.products, required this.searchQuery});
+  IsnewSlider({required this.products, required this.searchQuery});
   @override
   _ProductGridPageState createState() => _ProductGridPageState();
 }
 
-class _ProductGridPageState extends State<DiscountSlider> {
+class _ProductGridPageState extends State<IsnewSlider> {
   @override
   Widget build(BuildContext context) {
     final selectedDocument = context.watch<UserProvider>().selectedDocument;
@@ -59,7 +59,7 @@ class _ProductGridPageState extends State<DiscountSlider> {
 
             final honeyDocs = honeySnapshot.data!.docs.where((doc) {
               final data = doc.data() as Map<String, dynamic>;
-              return data['discount'] == true;
+              return data['isNew'] == true;
             }).toList();
 
             final allProducts = oilDocs
