@@ -7,24 +7,13 @@ import 'package:provider/provider.dart';
 import 'Main_Screens/WelcomeScreen.dart';
 import 'Serves/UserProvider.dart';
 
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  // Initialize Firebase in the background handler
-  await Firebase.initializeApp();
-  print("Background message: ${message.messageId}");
-}
 void main()async {
 
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: FirebaseOptions(apiKey: "AIzaSyBZDjvmG3vtQ4AEM4a2_eSS7uiDV7Sytxo", appId: "1:688690750237:android:8bac02cd231d9ebfbd37f4", messagingSenderId: "688690750237", projectId: "alwanoh-store",storageBucket: "alwanoh-store.appspot.com"),
   );
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-  await FirebaseAppCheck.instance.activate(
-    webProvider: ReCaptchaV3Provider('recaptcha-v3-site-key'),// For web only
-    androidProvider: AndroidProvider.playIntegrity,
-    appleProvider: AppleProvider.deviceCheck,
 
-  );
 
   runApp(  MultiProvider(
     providers: [

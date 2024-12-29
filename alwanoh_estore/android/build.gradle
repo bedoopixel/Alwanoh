@@ -10,6 +10,7 @@ buildscript {
         // If you are using Kotlin, you can also update the Kotlin Gradle plugin version
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.8.0"
         classpath 'com.google.gms:google-services:4.3.15'
+
     }
 }
 

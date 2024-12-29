@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../Thems/styles.dart'; // Import your custom styles
 
@@ -18,28 +17,28 @@ class _LocationPickerPageState extends State<LocationPickerPage> {
   @override
   void initState() {
     super.initState();
-    _getUserLocation();
+    // _getUserLocation();
   }
 
   // Get user's current location
-  Future<void> _getUserLocation() async {
-    LocationPermission permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
-      permission = await Geolocator.requestPermission();
-    }
-
-    if (permission == LocationPermission.whileInUse || permission == LocationPermission.always) {
-      Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-      );
-      setState(() {
-        _initialPosition = LatLng(position.latitude, position.longitude);
-      });
-      _mapController?.animateCamera(
-        CameraUpdate.newLatLng(_initialPosition),
-      );
-    }
-  }
+  // Future<void> _getUserLocation() async {
+  //   LocationPermission permission = await Geolocator.checkPermission();
+  //   if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
+  //     permission = await Geolocator.requestPermission();
+  //   }
+  //
+  //   if (permission == LocationPermission.whileInUse || permission == LocationPermission.always) {
+  //     Position position = await Geolocator.getCurrentPosition(
+  //       desiredAccuracy: LocationAccuracy.high,
+  //     );
+  //     setState(() {
+  //       _initialPosition = LatLng(position.latitude, position.longitude);
+  //     });
+  //     _mapController?.animateCamera(
+  //       CameraUpdate.newLatLng(_initialPosition),
+  //     );
+  //   }
+  // }
 
   // Save the selected location
   void _onMapTapped(LatLng location) {
@@ -50,7 +49,7 @@ class _LocationPickerPageState extends State<LocationPickerPage> {
 
   // Set the map's marker to the user's current location
   void _setToCurrentLocation() async {
-    await _getUserLocation();
+    // await _getUserLocation();
     setState(() {
       _selectedLocation = _initialPosition;
     });
