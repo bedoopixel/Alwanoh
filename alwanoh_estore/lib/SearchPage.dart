@@ -2,12 +2,14 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:provider/provider.dart';
 
 import '../Cart/CartPage.dart';
 import '../Favorite/FavoritesPage.dart';
 import '../Thems/styles.dart';
 import 'Main_Screens/HomePage.dart';
 import 'Search_Result.dart';
+import 'Thems/ThemeProvider.dart';
 
 
 class SearchPage extends StatefulWidget {
@@ -33,9 +35,13 @@ class _SearchPage extends State<SearchPage> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
     return Scaffold(
       extendBody: true,
-      backgroundColor: Colors.transparent,
+      backgroundColor:themeProvider.themeMode == ThemeMode.dark
+    ? Styles.darkBackground // Dark mode background
+      : Styles.lightBackground,
       body: Stack(
         children: [
           Padding(
@@ -73,15 +79,12 @@ class _SearchPage extends State<SearchPage> {
           ),
         ],
       ),
-      bottomNavigationBar: CustomBottomNavBar(
-        selectedIndex: _selectedIndex,
-        onItemTapped: _onItemTapped,
-      ),
     );
   }
 
   Widget _buildCustomAppBarWithSearchBar(BuildContext context) {
     double fontSize = MediaQuery.of(context).size.width > 600 ? 14.0 : 16.0;
+    final themeProvider = Provider.of<ThemeProvider>(context);
 
     return Container(
       color: Colors.transparent,
@@ -101,10 +104,14 @@ class _SearchPage extends State<SearchPage> {
                 style: TextStyle(color: Styles.customColor, fontSize: fontSize),
                 decoration: InputDecoration(
                   hintText: 'Search...',
-                  hintStyle: TextStyle(color: Colors.white54),
+                  hintStyle: TextStyle(color: themeProvider.themeMode == ThemeMode.dark
+                  ? Styles.lightBackground // Dark mode background
+                    : Styles.darkBackground,),
                   prefixIcon: Icon(Icons.search, color: Styles.customColor),
                   filled: true,
-                  fillColor: Colors.grey[900],
+                  fillColor:themeProvider.themeMode == ThemeMode.dark
+                      ? Styles.darkBackground // Dark mode background
+                      : Styles.lightBackground,
                   border: OutlineInputBorder(
                     borderSide: BorderSide(color: Styles.customColor),
                     borderRadius: BorderRadius.circular(10),
@@ -131,170 +138,7 @@ class _SearchPage extends State<SearchPage> {
 
 
 
-class CustomBottomNavBar extends StatelessWidget {
-  final int selectedIndex; // Track the selected index
-  final Function(int) onItemTapped; // Callback for item tap
 
-  const CustomBottomNavBar({
-    required this.selectedIndex,
-    required this.onItemTapped,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20), // Adds space on left and right
-        child: BottomAppBar(
-          color: Colors.transparent, // Set to transparent for a floating effect
-          elevation: 0, // Remove shadow
-          child: Center(
-            child: Container(
-              color: Colors.transparent,
-              height: MediaQuery.of(context).size.height * 0.09,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Stack with rounded container and oval overlap
-                  Stack(
-                    clipBehavior: Clip.none,
-                    children: [
-                      Container(
-                        width: 250,
-                        height: 60,
-                        decoration: BoxDecoration(
-                          color: Color(0xff9c774c),
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(27.5),
-                            bottomLeft: Radius.circular(27.5),
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            // Person icon
-                            IconButton(
-                              icon: Icon(
-                                Icons.search,
-                                color: selectedIndex == 3 ? Colors.black : Colors.black, // Change color based on selection
-                              ),
-                              onPressed: () {
-                                onItemTapped(0); // Pass index to callback
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => SearchPage(),
-                                  ),
-                                );
-                              },
-                            ),
-                            // Favorite icon
-                            IconButton(
-                              icon: Icon(
-                                Icons.favorite,
-                                color: selectedIndex == 1 ? Colors.black : Colors.white, // Change color based on selection
-                              ),
-                              onPressed: () {
-                                onItemTapped(1); // Pass index to callback
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => FavoritePage(),
-                                  ),
-                                );
-                              },
-                            ),
-                            // Shopping cart icon
-                            IconButton(
-                              icon: Icon(
-                                Icons.shopping_cart,
-                                color: selectedIndex == 2 ? Colors.black : Colors.white, // Change color based on selection
-                              ),
-
-                              onPressed: () => showCartBottomSheet(context),
-
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      // Positioned oval with SVG icon
-                      Positioned(
-                        right: -37,
-                        top: -17.95,
-                        child: ClipOval(
-                          child: Container(
-                            width: 63,
-                            height: 99,
-                            child: SvgPicture.string(
-                              '''
-                              <svg xmlns="http://www.w3.org/2000/svg" width="85" height="85" viewBox="0 0 90 90">
-                                <defs>
-                                  <style>
-                                    .cls-1 {
-                                      fill: #88683e;
-                                      fill-rule: evenodd;
-                                    }
-                                  </style>
-                                </defs>
-                                <path class="cls-1" d="M40.107,40.12A39.976,39.976,0,0,0,80.12,80H0V0H80V0.12A40,40,0,0,0,40.107,40.12Z"/>
-                              </svg>
-                              ''',
-                              width: 90,
-                              height: 90,
-                              color: Color(0xff9c774c),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  // Home icon with rounded circle
-                  Transform.translate(
-                    offset: Offset(5, 0),
-                    child: Container(
-                      width: 50,
-                      height: 50,
-                      decoration: BoxDecoration(
-                        color: Color(0xff9c774c),
-                        borderRadius: BorderRadius.circular(25),
-                      ),
-                      child: IconButton(
-                        icon: Icon(
-                          Icons.home,
-                          color: selectedIndex == 3 ? Colors.black : Colors.white, // Change color based on selection
-                        ),
-                        onPressed: () {
-                          onItemTapped(3); // Pass index to callback
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => HomePage(),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  void showCartBottomSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => CartBottomSheet(),
-    );
-  }
-}
 
 
 

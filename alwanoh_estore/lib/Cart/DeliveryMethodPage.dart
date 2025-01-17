@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../ChatPage.dart';
 import '../Profile_Pages/SelectAddressPage.dart';
+import '../Thems/ThemeProvider.dart';
 import 'OrderStatePage.dart';
 import '../Thems/styles.dart';
 import 'PaymentMethodPage.dart';
@@ -19,14 +21,24 @@ class _DeliveryMethodPageState extends State<DeliveryMethodPage> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
     return Scaffold(
       appBar: AppBar(
-        title: Text('Select Delivery Method'),
-        backgroundColor: Styles.customColor, // Using customColor from Styles
+        title: Text('Select Delivery Method',style: TextStyle(
+        color:themeProvider.themeMode == ThemeMode.dark
+        ? Styles.darkBackground // Dark mode background
+            : Styles.lightBackground,
+        ),),
+        backgroundColor:themeProvider.themeMode == ThemeMode.dark
+            ? Styles.customColor // Dark mode background
+            : Styles.customColor, // Using customColor from Styles
       ),
       body: Container(
         decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.9), // Set color with 90% opacity
+          color:themeProvider.themeMode == ThemeMode.dark
+              ? Styles.darkBackground // Dark mode background
+              : Styles.lightBackground,// Set color with 90% opacity// Set color with 90% opacity
           image: DecorationImage(
             image: AssetImage('assets/back.png'), // Background image
             fit: BoxFit.cover,
@@ -73,15 +85,19 @@ class _DeliveryMethodPageState extends State<DeliveryMethodPage> {
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.transparent, // Using primaryColor
+                    backgroundColor:themeProvider.themeMode == ThemeMode.dark
+                        ? Styles.darkBackground // Dark mode background
+                        : Styles.lightBackground, // Using primaryColor
                     minimumSize: Size(200, 50), // Set minimum size for the button (width, height)
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10), // Ensure rounded corners
+                      borderRadius: BorderRadius.circular(30), // Ensure rounded corners
                     ),
                   ),
                   child: Text(
                     'Proceed',
-                    style: TextStyle(color: Colors.white), // Ensuring text is white
+                      style: TextStyle(color:themeProvider.themeMode == ThemeMode.dark
+                          ? Styles.lightBackground // Dark mode background
+                          : Styles.darkBackground,)/// Ensuring text is white
                   ),
                 ),
               ),
@@ -106,21 +122,14 @@ class _DeliveryMethodPageState extends State<DeliveryMethodPage> {
         decoration: BoxDecoration(
           color: _selectedDeliveryMethod == method
               ? Styles.seconderyColor.withOpacity(0.2) // Change color when selected
-              : Styles.customColor,
+              : Colors.transparent,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
               color: _selectedDeliveryMethod == method
                   ? Styles.customColor // Highlight border when selected
                   : Styles.customColor,
               width: 1),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.5),
-              spreadRadius: 2,
-              blurRadius: 5,
-              offset: Offset(0, 3), // changes position of shadow
-            ),
-          ],
+
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -131,14 +140,14 @@ class _DeliveryMethodPageState extends State<DeliveryMethodPage> {
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
                 color: _selectedDeliveryMethod == method
-                    ? Styles.primaryColor
-                    : Colors.black,
+                    ? Styles.customColor
+                    : Styles.customColor,
               ),
             ),
             if (_selectedDeliveryMethod == method)
               Icon(
                 Icons.check_circle,
-                color: Styles.primaryColor,
+                color: Styles.customColor,
               ), // Show check icon for the selected method
           ],
         ),

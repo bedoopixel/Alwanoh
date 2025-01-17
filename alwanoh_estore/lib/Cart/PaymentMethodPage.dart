@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../Thems/ThemeProvider.dart';
 import '../Thems/styles.dart';
 import 'DeliveryMethodPage.dart';
 
@@ -14,16 +16,27 @@ class PaymentMethodPage extends StatefulWidget {
 class _PaymentMethodPageState extends State<PaymentMethodPage> {
   String? _selectedPaymentMethod;
 
+
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
     return Scaffold(
       appBar: AppBar(
-        title: Text('Select Payment Method'),
-        backgroundColor: Styles.customColor, // Using customColor from Styles
+        title: Text('Select Payment Method',style: TextStyle(
+        color:themeProvider.themeMode == ThemeMode.dark
+        ? Styles.darkBackground // Dark mode background
+            : Styles.lightBackground,
+        ),),
+        backgroundColor:themeProvider.themeMode == ThemeMode.dark
+      ? Styles.customColor // Dark mode background
+        : Styles.customColor, // Using customColor from Styles
       ),
       body: Container(
         decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.9), // Set color with 90% opacity
+          color:themeProvider.themeMode == ThemeMode.dark
+              ? Styles.darkBackground // Dark mode background
+              : Styles.lightBackground,// Set color with 90% opacity
           image: DecorationImage(
             image: AssetImage('assets/back.png'), // Background image
             fit: BoxFit.cover,
@@ -51,44 +64,46 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
             Center(
               child: Container(
                 decoration: BoxDecoration(
-                  border: Border.all(color: Styles.customColor, width: 2), // Border color and width
+                  border: Border.all(color: Styles.customColor, width: 2),
+                  borderRadius: BorderRadius.circular(30),// Border color and width
                 ),
-                child: ClipPath(
-                  clipper: LeftCarveClipper(),
-                  child: ElevatedButton(
-                    onPressed: _selectedPaymentMethod == null
-                        ? null
-                        : () {
-                      if (_selectedPaymentMethod == 'MasterCard') {
-                        _showDemoPaymentDialog(); // Show demo payment dialog
-                      } else {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => DeliveryMethodPage(
-                              cartItems: widget.cartItems,
-                              selectedPaymentMethod: _selectedPaymentMethod!,
-                            ),
+                child: ElevatedButton(
+                  onPressed: _selectedPaymentMethod == null
+                      ? null
+                      : () {
+                    if (_selectedPaymentMethod == 'MasterCard') {
+                      _showDemoPaymentDialog(); // Show demo payment dialog
+                    } else {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => DeliveryMethodPage(
+                            cartItems: widget.cartItems,
+                            selectedPaymentMethod: _selectedPaymentMethod!,
                           ),
-                        );
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Selected: $_selectedPaymentMethod'),
-                          ),
-                        );
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.transparent, // Button background color
-                      minimumSize: Size(200, 50), // Minimum size for the button
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10), // Rounded corners
-                      ),
+                        ),
+                      );
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Selected: $_selectedPaymentMethod'),
+                        ),
+                      );
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor:themeProvider.themeMode == ThemeMode.dark
+                  ? Styles.darkBackground // Dark mode background
+                    : Styles.lightBackground,// Button background color
+                    minimumSize: Size(200, 50), // Minimum size for the button
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30), // Rounded corners
                     ),
-                    child: Text(
-                      'Proceed',
-                      style: TextStyle(color: Colors.white), // White text color
-                    ),
+                  ),
+                  child: Text(
+                    'Proceed',
+                    style: TextStyle(color:themeProvider.themeMode == ThemeMode.dark
+                    ? Styles.lightBackground // Dark mode background
+                        : Styles.darkBackground,)// White text color
                   ),
                 ),
               ),
@@ -171,6 +186,7 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
 
   // Method to create a payment method inside a container
   Widget _buildPaymentMethodContainer(String method) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return GestureDetector(
       onTap: () {
         setState(() {
@@ -182,19 +198,12 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
         decoration: BoxDecoration(
           color: _selectedPaymentMethod == method
               ? Styles.seconderyColor.withOpacity(0.2) // Change color when selected
-              : Styles.customColor,
+              : Colors.transparent,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
               color: Styles.customColor, // Border color for the container
               width: 1),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.5),
-              spreadRadius: 2,
-              blurRadius: 5,
-              offset: Offset(0, 3), // Shadow position
-            ),
-          ],
+
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -205,14 +214,16 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
                 color: _selectedPaymentMethod == method
-                    ? Styles.primaryColor
-                    : Colors.black,
+                    ? Styles.customColor
+                    : Styles.customColor,
               ),
             ),
             if (_selectedPaymentMethod == method)
               Icon(
                 Icons.check_circle,
-                color: Styles.primaryColor,
+                color:themeProvider.themeMode == ThemeMode.dark
+                    ? Styles.customColor // Dark mode background
+                    : Styles.customColor,
               ), // Check icon for selected method
           ],
         ),

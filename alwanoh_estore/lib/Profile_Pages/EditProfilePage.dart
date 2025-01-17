@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
 import '../Serves/UserProvider.dart'; // Ensure this path is correct
+import '../Thems/ThemeProvider.dart';
 import '../Thems/styles.dart'; // Import your styles if needed
 
 class EditProfilePage extends StatefulWidget {
@@ -19,6 +20,7 @@ class EditProfilePage extends StatefulWidget {
 class _EditProfilePageState extends State<EditProfilePage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final ImagePicker _picker = ImagePicker();
+
   XFile? _imageFile;
 
   TextEditingController nameController = TextEditingController();
@@ -92,10 +94,14 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
     String? selectedDocument = context.watch<UserProvider>().selectedDocument;
 
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor:themeProvider.themeMode == ThemeMode.dark
+          ? Styles.darkBackground // Dark mode background
+          : Styles.lightBackground,
       body: ListView(
         padding: const EdgeInsets.only(top: 50),
         children: [
@@ -131,7 +137,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 ),
                 Positioned(
                   bottom: 0,
-                  right: 45,
+                  right: 40,
                   child: CircleAvatar(
                     backgroundColor: Colors.transparent,
                     child: IconButton(
@@ -235,7 +241,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
             decoration: InputDecoration(
               label: Text('Document', style: TextStyle(color: Styles.customColor,)),
               filled: true,
-              fillColor: Colors.black,
+              fillColor: Colors.transparent,
               border: OutlineInputBorder(
                 borderSide: BorderSide(color: Styles.customColor,),
                 borderRadius: BorderRadius.circular(10),
@@ -248,7 +254,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 borderSide: BorderSide(color: Styles.customColor,),
               ),
             ),
-            dropdownColor: Colors.black,
+            dropdownColor: themeProvider.themeMode == ThemeMode.dark
+          ? Styles.darkBackground // Dark mode background
+            : Styles.lightBackground,
           ),
           SizedBox(height: 30),
           Center(
@@ -263,7 +271,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
               ),
               child: Text(
                 'Save Changes',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color:themeProvider.themeMode == ThemeMode.dark
+                ? Styles.darkBackground // Dark mode background
+                  : Styles.lightBackground,),
               ),
             ),
           ),

@@ -2,8 +2,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import '../Cart/OrderStatePage.dart';
 import '../Main_Screens/HomePage.dart';
+import '../Main_Screens/home.dart';
+import '../Thems/ThemeProvider.dart';
 import '../Thems/styles.dart';
 
 
@@ -25,14 +28,22 @@ class _OrdersManagementPageState extends State<OrdersManagementPage> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text('Orders Management'),
-        backgroundColor: Styles.customColor,
+        title: Text('Orders Management',
+            style: TextStyle(color:themeProvider.themeMode == ThemeMode.dark
+                ? Styles.lightBackground // Dark mode background
+                : Styles.darkBackground,)),
+        backgroundColor:themeProvider.themeMode == ThemeMode.dark
+            ? Styles.customColor // Dark mode background
+            : Styles.customColor,
       ),
       body: Container(
         decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.9),
+          color:themeProvider.themeMode == ThemeMode.dark
+              ? Styles.darkBackground // Dark mode background
+              : Styles.lightBackground,
           image: DecorationImage(
             image: AssetImage('assets/back.png'),
             fit: BoxFit.cover,
@@ -74,7 +85,7 @@ class _OrdersManagementPageState extends State<OrdersManagementPage> {
                         margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                         padding: const EdgeInsets.all(16.0),
                         decoration: BoxDecoration(
-                          color: Styles.seconderyColor,
+                          color:Colors.transparent,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(color: Styles.customColor),
                         ),
@@ -121,9 +132,13 @@ class _OrdersManagementPageState extends State<OrdersManagementPage> {
                                       backgroundColor: Styles.customColor, // Button color
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(8),
+
                                       ),
                                     ),
-                                    child: Text('Track Order'),
+                                    child: Text('Track Order',
+                                        style: TextStyle(color:themeProvider.themeMode == ThemeMode.dark
+                                            ? Styles.lightBackground // Dark mode background
+                                            : Styles.darkBackground,)),
                                   ),
                                 ],
                               ),
@@ -143,7 +158,7 @@ class _OrdersManagementPageState extends State<OrdersManagementPage> {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => HomePage()), // Navigate to HomePage
+            MaterialPageRoute(builder: (context) => Home()), // Navigate to HomePage
           );
         },
         backgroundColor: Styles.customColor,
@@ -200,7 +215,7 @@ class _OrdersManagementPageState extends State<OrdersManagementPage> {
     return FirebaseFirestore.instance
         .collection('users')
         .doc(userId)
-        .collection('order_management')
+        .collection('user_order')
         .where('status', isEqualTo: status) // Filter by selected status
         .orderBy('status') // Ascending order for status
         .orderBy('timestamp', descending: true) // Descending order for timestamp

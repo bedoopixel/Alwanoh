@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../Products/ProductDetailsPage.dart';
 import '../Serves/UserProvider.dart';
+import '../Thems/ThemeProvider.dart';
 import '../Thems/styles.dart';
 
 
@@ -15,6 +16,8 @@ class FavoritePage extends StatefulWidget {
 class _FavoritePageState extends State<FavoritePage> {
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
     final userId = context.watch<UserProvider>().userId;
 
     final favoritesStream = FirebaseFirestore.instance
@@ -25,7 +28,9 @@ class _FavoritePageState extends State<FavoritePage> {
 
 
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor:themeProvider.themeMode == ThemeMode.dark
+    ? Styles.darkBackground // Dark mode background
+      : Styles.lightBackground,
       body: Column(
         children: [
           SizedBox(height: 60,),
@@ -155,6 +160,8 @@ class _ProductCardState extends State<ProductCard> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
     final product = widget.product;
     final List<String> imageUrls = [
       product['image1'] as String?,
@@ -190,7 +197,9 @@ class _ProductCardState extends State<ProductCard> {
             width: 2.0,
           ),
         ),
-        color: Colors.black,
+        color:themeProvider.themeMode == ThemeMode.dark
+            ? Styles.lightBackground // Dark mode background
+            : Styles.darkBackground,
         child: Stack(
           children: [
             Column(

@@ -6,6 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import '../Login/loginScreen.dart';
 import '../Main_Screens/HomePage.dart';
+import '../Main_Screens/home.dart';
 import '../Serves/Auth.dart';
 import '../Serves/UserProvider.dart';
 import '../Thems/custom_scaffold.dart';
@@ -238,7 +239,7 @@ class _SignInScreenState extends State<SignInScreen> {
             if (userDoc.exists) {
               String selectedDocument = userDoc.get('document') ?? 'YE'; // Fetch document or default to 'YE'
               Provider.of<UserProvider>(context, listen: false).updateSelectedDocument(selectedDocument);
-              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomePage()));
+              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Home()));
               ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Sign in successful")));
             } else {
               ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("User document not found in Firestore")));
@@ -295,7 +296,7 @@ class _SignInScreenState extends State<SignInScreen> {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (context) => HomePage(),
+              builder: (context) => Home(),
             ),
           );
 

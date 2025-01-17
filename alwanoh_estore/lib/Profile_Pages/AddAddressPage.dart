@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:provider/provider.dart';
+import '../Thems/ThemeProvider.dart';
 import '../Thems/styles.dart';
 import 'LocationPickerPage.dart';
 
@@ -21,8 +23,12 @@ class _AddAddressPageState extends State<AddAddressPage> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
     return Scaffold(
-      backgroundColor: Styles.primaryColor,
+      backgroundColor:themeProvider.themeMode == ThemeMode.dark
+          ? Styles.darkBackground // Dark mode background
+          : Styles.lightBackground,
       appBar: AppBar(
         title: Text('Add Address'),
         backgroundColor: Styles.customColor,

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
+import '../Thems/ThemeProvider.dart';
 import '../Thems/styles.dart';
 import 'PaymentMethodPage.dart';
 
@@ -15,6 +17,7 @@ class CartBottomSheet extends StatelessWidget {
     }
 
     final String userId = user.uid;
+    final themeProvider = Provider.of<ThemeProvider>(context);
 
     return DraggableScrollableSheet(
       initialChildSize: 0.3,
@@ -23,7 +26,9 @@ class CartBottomSheet extends StatelessWidget {
       builder: (context, scrollController) {
         return Container(
           decoration: BoxDecoration(
-            color: Styles.primaryColor,
+            color:themeProvider.themeMode == ThemeMode.dark
+          ? Styles.darkBackground // Dark mode background
+            : Styles.lightBackground,
             borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
           ),
           child: Column(

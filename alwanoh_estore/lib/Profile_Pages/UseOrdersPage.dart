@@ -2,21 +2,34 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart'; // Import intl for number formatting
+import 'package:provider/provider.dart';
 import '../Cart/OrderStatePage.dart';
+import '../Thems/ThemeProvider.dart';
 import '../Thems/styles.dart';
 import 'OrdersManagementPage.dart'; // Import your Styles class
 
 class UseOrdersPage extends StatelessWidget {
+
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
     return Scaffold(
       appBar: AppBar(
-        title: Text('Your Orders'),
-        backgroundColor: Styles.customColor,
+        title: Text('Your Orders',style: TextStyle(
+          color:themeProvider.themeMode == ThemeMode.dark
+              ? Styles.darkBackground // Dark mode background
+              : Styles.lightBackground,
+        ),),
+        backgroundColor:themeProvider.themeMode == ThemeMode.dark
+            ? Styles.customColor // Dark mode background
+            : Styles.customColor,
       ),
       body: Container(
         decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.9), // Set color with 90% opacity
+          color:themeProvider.themeMode == ThemeMode.dark
+              ? Styles.darkBackground // Dark mode background
+              : Styles.lightBackground,// Set color with 90% opacity
           image: DecorationImage(
             image: AssetImage('assets/back.png'), // Background image
             fit: BoxFit.cover,
@@ -76,7 +89,9 @@ class UseOrdersPage extends StatelessWidget {
                                   padding: EdgeInsets.all(20), // Adjusted padding
                                   margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16), // Same margin
                                   decoration: BoxDecoration(
-                                    color: Styles.seconderyColor, // Use secondaryColor for the background
+                                      color:themeProvider.themeMode == ThemeMode.dark
+                                          ? Styles.darkBackground // Dark mode background
+                                          : Styles.lightBackground, // Use secondaryColor for the background
                                     borderRadius: BorderRadius.circular(10), // Rounded corners
                                     border: Border.all(
                                       color: Styles.customColor, // Border color
@@ -95,7 +110,7 @@ class UseOrdersPage extends StatelessWidget {
                               },
                             ),
                             SizedBox(height: 16),
-                            ..._buildCartItemsWidgets(order['cart_items']),
+                            ..._buildCartItemsWidgets(order['cart_items'],context),
                           ],
                         ),
                       );
@@ -135,12 +150,17 @@ class UseOrdersPage extends StatelessWidget {
                                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('User not authenticated')));
                                 }
                               },
-                              child: Text('Order', style: TextStyle(color: Colors.white)),
+                              child: Text('Order',
+                                  style: TextStyle(color:themeProvider.themeMode == ThemeMode.dark
+                                      ? Styles.lightBackground // Dark mode background
+                                      : Styles.darkBackground,)),
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.transparent,
+                                backgroundColor:themeProvider.themeMode == ThemeMode.dark
+                                    ? Styles.darkBackground // Dark mode background
+                                    : Styles.lightBackground,
                                 minimumSize: Size(200, 50),
                                 shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
+                                  borderRadius: BorderRadius.circular(30),
                                 ),
                               ),
                             )
@@ -205,15 +225,21 @@ class UseOrdersPage extends StatelessWidget {
         .snapshots();
   }
 
-  List<Widget> _buildCartItemsWidgets(List<dynamic> cartItems) {
+  List<Widget> _buildCartItemsWidgets(List<dynamic> cartItems, BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
     return cartItems.map<Widget>((item) {
       return Container(
         padding: EdgeInsets.all(12),
         margin: EdgeInsets.symmetric(vertical: 4),
         decoration: BoxDecoration(
-          color: Styles.seconderyColor,
+          color: themeProvider.themeMode == ThemeMode.dark
+              ? Styles.darkBackground // Dark mode background
+              : Styles.lightBackground, // Light mode background
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: Styles.customColor),
+          border: Border.all(
+            color: Styles.customColor, // Border color from Styles
+          ),
         ),
         child: Row(
           children: [
@@ -238,9 +264,31 @@ class UseOrdersPage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(item['name'] ?? 'Unknown Item', style: TextStyle(color: Styles.customColor, fontWeight: FontWeight.bold)),
-                  Text('\$${item['price'].toString()}', style: TextStyle(color: Styles.customColor)),
-                  Text('Qty: ${item['quantity'].toString()}', style: TextStyle(color: Styles.customColor)),
+                  Text(
+                    item['name'] ?? 'Unknown Item',
+                    style: TextStyle(
+                      color: themeProvider.themeMode == ThemeMode.dark
+                          ? Colors.white // Dark mode text color
+                          : Styles.customColor, // Light mode text color
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    '\$${item['price'].toString()}',
+                    style: TextStyle(
+                      color: themeProvider.themeMode == ThemeMode.dark
+                          ? Colors.white70 // Dark mode price color
+                          : Styles.customColor.withOpacity(0.8), // Light mode price color
+                    ),
+                  ),
+                  Text(
+                    'Qty: ${item['quantity'].toString()}',
+                    style: TextStyle(
+                      color: themeProvider.themeMode == ThemeMode.dark
+                          ? Colors.white70 // Dark mode quantity color
+                          : Styles.customColor.withOpacity(0.8), // Light mode quantity color
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -249,6 +297,7 @@ class UseOrdersPage extends StatelessWidget {
       );
     }).toList();
   }
+
 
   Future<Map<String, dynamic>?> _fetchAddressById(String addressId) async {
     try {
@@ -324,7 +373,7 @@ class UseOrdersPage extends StatelessWidget {
     await FirebaseFirestore.instance
         .collection('users')
         .doc(userId)
-        .collection('order_management')
+        .collection('user_order')
         .add(orderData);
 
     // Delete the order from the original orders collection

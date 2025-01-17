@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import '../../Serves/UserProvider.dart';
 import '../../Thems/styles.dart';
+import '../Thems/ThemeProvider.dart';
 import 'ProductDetailsPage.dart';
 
 
@@ -19,6 +20,8 @@ class FinalProducts extends StatefulWidget {
 class _FinalProducts extends State<FinalProducts> {
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
     final selectedDocument = context.watch<UserProvider>().selectedDocument;
     final userId = context.watch<UserProvider>().userId;
     var searchQuery = widget.searchQuery.toLowerCase();
@@ -174,11 +177,13 @@ class _FinalProducts extends State<FinalProducts> {
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(15.0),
                                     side: BorderSide(
-                                      color: Styles.customColor,
+                                      color:Styles.customColor,
                                       width: 2.0,
                                     ),
                                   ),
-                                  color: Colors.black,
+                                  color:themeProvider.themeMode == ThemeMode.dark
+                                      ? Styles.darkBackground // Dark mode background
+                                      : Styles.lightBackground,
                                   child: Stack(
                                     children: [
                                       Column(
@@ -335,7 +340,9 @@ class _FinalProducts extends State<FinalProducts> {
                                             child: Text(
                                               name,
                                               style: TextStyle(
-                                                color: Colors.white,
+                                                color:themeProvider.themeMode == ThemeMode.dark
+                                                    ? Styles.lightBackground // Dark mode background
+                                                    : Styles.darkBackground,
                                                 fontWeight: FontWeight.bold,
                                                 fontSize: fontSize,
                                               ),

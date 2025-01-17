@@ -11,6 +11,7 @@ import '../Signin/regScreen.dart';
 import '../Thems/styles.dart';
 import '../Serves/UserProvider.dart';
 import 'HomePage.dart';
+import 'home.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({Key? key}) : super(key: key);
@@ -221,7 +222,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => HomePage(),
+          builder: (context) => Home(),
         ),
       );
     } else {
@@ -253,7 +254,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: (context) => HomePage(),
+        builder: (context) => Home(),
       ),
     );
   }

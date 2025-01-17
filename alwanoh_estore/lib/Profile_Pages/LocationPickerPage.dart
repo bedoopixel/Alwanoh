@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart';
 import '../Thems/styles.dart'; // Import your custom styles
 
 class LocationPickerPage extends StatefulWidget {
@@ -13,49 +15,62 @@ class _LocationPickerPageState extends State<LocationPickerPage> {
   GoogleMapController? _mapController;
   LatLng? _selectedLocation;
   LatLng _initialPosition = LatLng(37.7749, -122.4194); // Default location (San Francisco)
+  String _currentAddress = "Fetching location...";
 
   @override
   void initState() {
     super.initState();
-    // _getUserLocation();
+    _setToCurrentLocation(); // Set initial location to user's current location
   }
 
-  // Get user's current location
-  // Future<void> _getUserLocation() async {
-  //   LocationPermission permission = await Geolocator.checkPermission();
-  //   if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
-  //     permission = await Geolocator.requestPermission();
-  //   }
-  //
-  //   if (permission == LocationPermission.whileInUse || permission == LocationPermission.always) {
-  //     Position position = await Geolocator.getCurrentPosition(
-  //       desiredAccuracy: LocationAccuracy.high,
-  //     );
-  //     setState(() {
-  //       _initialPosition = LatLng(position.latitude, position.longitude);
-  //     });
-  //     _mapController?.animateCamera(
-  //       CameraUpdate.newLatLng(_initialPosition),
-  //     );
-  //   }
-  // }
+  Future<void> _setToCurrentLocation() async {
+    try {
+      // Check and request permissions
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
+        permission = await Geolocator.requestPermission();
+      }
 
-  // Save the selected location
-  void _onMapTapped(LatLng location) {
-    setState(() {
-      _selectedLocation = location;
-    });
-  }
+      if (permission == LocationPermission.whileInUse ||
+          permission == LocationPermission.always) {
+        // Get current position
+        Position position = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high,
+        );
 
-  // Set the map's marker to the user's current location
-  void _setToCurrentLocation() async {
-    // await _getUserLocation();
-    setState(() {
-      _selectedLocation = _initialPosition;
-    });
-    _mapController?.animateCamera(
-      CameraUpdate.newLatLng(_initialPosition),
-    );
+        LatLng userLocation = LatLng(position.latitude, position.longitude);
+
+        // Update the map and address
+        setState(() {
+          _initialPosition = userLocation;
+          _selectedLocation = userLocation;
+        });
+
+        _mapController?.animateCamera(
+          CameraUpdate.newLatLng(userLocation),
+        );
+
+        // Reverse geocode to get address
+        List<Placemark> placemarks = await placemarkFromCoordinates(
+          position.latitude,
+          position.longitude,
+        );
+
+        if (placemarks.isNotEmpty) {
+          Placemark place = placemarks.first;
+          setState(() {
+            _currentAddress =
+            "${place.street}, ${place.locality}, ${place.country}";
+          });
+        }
+      }
+    } catch (e) {
+      print("Error getting location: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to get your location')),
+      );
+    }
   }
 
   @override
@@ -74,7 +89,11 @@ class _LocationPickerPageState extends State<LocationPickerPage> {
               zoom: 14.0,
             ),
             onMapCreated: (controller) => _mapController = controller,
-            onTap: _onMapTapped,
+            onTap: (location) {
+              setState(() {
+                _selectedLocation = location;
+              });
+            },
             markers: _selectedLocation != null
                 ? {
               Marker(
@@ -83,6 +102,23 @@ class _LocationPickerPageState extends State<LocationPickerPage> {
               ),
             }
                 : {},
+          ),
+          Positioned(
+            top: 20,
+            left: 20,
+            right: 20,
+            child: Container(
+              padding: EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.8),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                _currentAddress,
+                style: TextStyle(color: Colors.black, fontSize: 16),
+                textAlign: TextAlign.center,
+              ),
+            ),
           ),
           Positioned(
             bottom: 90,

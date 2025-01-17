@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import '../../../Serves/UserProvider.dart';
 import '../../../Thems/styles.dart';
+import '../Thems/ThemeProvider.dart';
 import 'ProductDetailsPage.dart';
 
 
@@ -26,6 +27,8 @@ class _ProductsMain extends State<ProductsMain> {
   Widget build(BuildContext context) {
     final selectedDocument = context.watch<UserProvider>().selectedDocument;
     final userId = context.watch<UserProvider>().userId;
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
 
     var searchQuery = widget.searchQuery.toLowerCase();
 
@@ -46,7 +49,9 @@ class _ProductsMain extends State<ProductsMain> {
         .snapshots();
 
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor:themeProvider.themeMode == ThemeMode.dark
+          ? Styles.darkBackground // Dark mode background
+          : Styles.lightBackground,
       appBar: AppBar(
         title: Text(widget.title,
         style: const TextStyle(
@@ -206,12 +211,10 @@ class _ProductsMain extends State<ProductsMain> {
                                   elevation: 5,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(15.0),
-                                    side: BorderSide(
-                                      color: Styles.customColor,
-                                      width: 2.0,
-                                    ),
                                   ),
-                                  color: Colors.black,
+                                  color:themeProvider.themeMode == ThemeMode.dark
+                                      ? Styles.darkBackground // Dark mode background
+                                      : Styles.lightBackground,
                                   child: Stack(
                                     children: [
                                       Column(
@@ -368,7 +371,9 @@ class _ProductsMain extends State<ProductsMain> {
                                             child: Text(
                                               name,
                                               style: TextStyle(
-                                                color: Colors.white,
+                                                color:themeProvider.themeMode == ThemeMode.dark
+                                                    ? Styles.lightBackground // Dark mode background
+                                                    : Styles.darkBackground,
                                                 fontWeight: FontWeight.bold,
                                                 fontSize: fontSize,
                                               ),

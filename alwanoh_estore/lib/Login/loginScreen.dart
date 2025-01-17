@@ -8,6 +8,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:google_sign_in/google_sign_in.dart'; // Google Sign In
 
 import '../Main_Screens/HomePage.dart';
+import '../Main_Screens/home.dart';
 import '../Profile_Pages/EditProfilePage.dart';
 import '../Serves/Auth.dart';
 import '../Signin/regScreen.dart';
@@ -400,7 +401,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
     // If email is verified, navigate to the HomePage
     Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (context) => HomePage()),
+      MaterialPageRoute(builder: (context) => Home()),
     );
   }
 

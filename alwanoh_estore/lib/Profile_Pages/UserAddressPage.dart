@@ -1,6 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:provider/provider.dart';
+import '../Thems/ThemeProvider.dart';
 import '../Thems/styles.dart'; // Import your Styles class
 import 'AddAddressPage.dart';
 
@@ -13,8 +15,12 @@ class UserAddressPage extends StatefulWidget {
 class _UserAddressPageState extends State<UserAddressPage> {
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
     return Scaffold(
-      backgroundColor: Styles.primaryColor,
+      backgroundColor:themeProvider.themeMode == ThemeMode.dark
+          ? Styles.darkBackground // Dark mode background
+          : Styles.lightBackground,
       appBar: AppBar(
         title: Text('User Addresses'),
         backgroundColor: Styles.customColor,
@@ -40,6 +46,7 @@ class _UserAddressPageState extends State<UserAddressPage> {
               var address = snapshot.data!.docs[index];
               return Card(
                 color: Styles.seconderyColor,
+
                 margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                 child: ListTile(
                   title: Text('${address['type']}',style: TextStyle(color: Styles.customColor),),
@@ -70,7 +77,9 @@ class _UserAddressPageState extends State<UserAddressPage> {
           );
         },
         backgroundColor: Styles.customColor,
-        child: Icon(Icons.add,color: Styles.primaryColor,),
+        child: Icon(Icons.add,color:themeProvider.themeMode == ThemeMode.dark
+            ? Styles.darkBackground // Dark mode background
+            : Styles.lightBackground,),
       ),
     );
   }

@@ -5,6 +5,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../Main_Screens/HomePage.dart';
+import '../Main_Screens/home.dart';
 import '../Thems/styles.dart'; // Ensure this path is correct
 
 class CompleteProfilePage extends StatefulWidget {
@@ -79,7 +80,7 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
       // Navigate to HomePage
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => HomePage()),
+        MaterialPageRoute(builder: (context) => Home()),
       );
     }
   }

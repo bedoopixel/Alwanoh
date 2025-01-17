@@ -1,6 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../Thems/ThemeProvider.dart';
 import '../Thems/styles.dart';
 
 class ChangePasswordScreen extends StatefulWidget {
@@ -60,141 +62,139 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor:themeProvider.themeMode == ThemeMode.dark
+          ? Styles.darkBackground // Dark mode background
+          : Styles.lightBackground,
       appBar: AppBar(
         title: Text("Change Password"),
         backgroundColor: Styles.customColor,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Card(
-          color: Styles.primaryColor,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              
-              children: [
-                TextField(
-                  style: TextStyle(color: Styles.customColor),
-                  controller: _currentPasswordController,
-                  decoration: InputDecoration(
-                    labelText: "Current Password",
-                    errorText: _currentPasswordError,
-                    labelStyle: TextStyle(color: Styles.customColor),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: Styles.customColor),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: Styles.customColor),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Styles.customColor),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  obscureText: true,
-                ),
-                SizedBox(height: 25),
-                TextField(
-                  style: TextStyle(color: Styles.customColor),
-                  controller: _newPasswordController,
-                  obscureText: !_isNewPasswordVisible,
-                  decoration: InputDecoration(
-                    labelText: "New Password",
-                    errorText: _newPasswordError,
-                    labelStyle: TextStyle(color: Styles.customColor),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: Styles.customColor),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: Styles.customColor),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Styles.customColor),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _isNewPasswordVisible ? Icons.visibility : Icons.visibility_off,
-                        color: Styles.customColor,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _isNewPasswordVisible = !_isNewPasswordVisible;
-                        });
-                      },
-                    ),
-                  ),
-                ),
-                SizedBox(height: 25),
-                TextField(
-                  style: TextStyle(color: Styles.customColor),
-                  controller: _confirmPasswordController,
-                  obscureText: !_isConfirmPasswordVisible,
-                  decoration: InputDecoration(
-                    labelText: "Confirm New Password",
-                    errorText: _confirmPasswordError,
-                    labelStyle: TextStyle(color: Styles.customColor),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: Styles.customColor),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: Styles.customColor),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Styles.customColor),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _isConfirmPasswordVisible ? Icons.visibility : Icons.visibility_off,
-                        color: Styles.customColor,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _isConfirmPasswordVisible = !_isConfirmPasswordVisible;
-                        });
-                      },
-                    ),
-                  ),
-                ),
-                SizedBox(height: 25),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
 
-                GestureDetector(
-                  onTap: _changePassword,
-                  child: Container(
-                    height: 40,
-                    width: 200,
-                    decoration: BoxDecoration(
-                      color: Colors.black54,
-                      borderRadius: BorderRadius.circular(30),
-                      border: Border.all(color: Styles.customColor),
+            children: [
+              TextField(
+                style: TextStyle(color: Styles.customColor),
+                controller: _currentPasswordController,
+                decoration: InputDecoration(
+                  labelText: "Current Password",
+                  errorText: _currentPasswordError,
+                  labelStyle: TextStyle(color: Styles.customColor),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(color: Styles.customColor),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(color: Styles.customColor),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Styles.customColor),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                obscureText: true,
+              ),
+              SizedBox(height: 25),
+              TextField(
+                style: TextStyle(color: Styles.customColor),
+                controller: _newPasswordController,
+                obscureText: !_isNewPasswordVisible,
+                decoration: InputDecoration(
+                  labelText: "New Password",
+                  errorText: _newPasswordError,
+                  labelStyle: TextStyle(color: Styles.customColor),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(color: Styles.customColor),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(color: Styles.customColor),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Styles.customColor),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _isNewPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                      color: Styles.customColor,
                     ),
-                    child: Center(
-                      child: Text(
-                        'Change Password',
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.bold,
-                          color: Styles.customColor,
-                        ),
+                    onPressed: () {
+                      setState(() {
+                        _isNewPasswordVisible = !_isNewPasswordVisible;
+                      });
+                    },
+                  ),
+                ),
+              ),
+              SizedBox(height: 25),
+              TextField(
+                style: TextStyle(color: Styles.customColor),
+                controller: _confirmPasswordController,
+                obscureText: !_isConfirmPasswordVisible,
+                decoration: InputDecoration(
+                  labelText: "Confirm New Password",
+                  errorText: _confirmPasswordError,
+                  labelStyle: TextStyle(color: Styles.customColor),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(color: Styles.customColor),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(color: Styles.customColor),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Styles.customColor),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _isConfirmPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                      color: Styles.customColor,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _isConfirmPasswordVisible = !_isConfirmPasswordVisible;
+                      });
+                    },
+                  ),
+                ),
+              ),
+              SizedBox(height: 25),
+
+              GestureDetector(
+                onTap: _changePassword,
+                child: Container(
+                  height: 40,
+                  width: 200,
+                  decoration: BoxDecoration(
+                    color: Colors.transparent,
+                    borderRadius: BorderRadius.circular(30),
+                    border: Border.all(color: Styles.customColor),
+                  ),
+                  child: Center(
+                    child: Text(
+                      'Change Password',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                        color: Styles.customColor,
                       ),
                     ),
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

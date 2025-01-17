@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import '../../Serves/UserProvider.dart';
 import '../../Thems/styles.dart';
+import '../Thems/ThemeProvider.dart';
 import 'ProductDetailsPage.dart';
 
 
@@ -22,6 +23,8 @@ class _AllProducts extends State<AllProducts> {
     final selectedDocument = context.watch<UserProvider>().selectedDocument;
     final userId = context.watch<UserProvider>().userId;
     var searchQuery = widget.searchQuery.toLowerCase();
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
 
     if (selectedDocument == null) {
       return Center(child: Text('No document selected', style: TextStyle(color: Styles.customColor)));
@@ -40,7 +43,10 @@ class _AllProducts extends State<AllProducts> {
         .snapshots();
 
     return Scaffold(
-      backgroundColor: Colors.black,
+
+      backgroundColor:themeProvider.themeMode == ThemeMode.dark
+          ? Styles.darkBackground // Dark mode background
+          : Styles.lightBackground,
       appBar: AppBar(
         title: Text("All",
           style: const TextStyle(
@@ -198,7 +204,9 @@ class _AllProducts extends State<AllProducts> {
                                       width: 2.0,
                                     ),
                                   ),
-                                  color: Colors.black,
+                                  color:themeProvider.themeMode == ThemeMode.dark
+                                      ? Styles.darkBackground // Dark mode background
+                                      : Styles.lightBackground,
                                   child: Stack(
                                     children: [
                                       Column(
@@ -245,7 +253,7 @@ class _AllProducts extends State<AllProducts> {
                                                       child: Container(
                                                         padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
                                                         decoration: BoxDecoration(
-                                                          color: Colors.green,
+                                                          color: Colors.cyan,
                                                           borderRadius: BorderRadius.circular(12.0),
                                                         ),
                                                         child: Text(
@@ -355,7 +363,9 @@ class _AllProducts extends State<AllProducts> {
                                             child: Text(
                                               name,
                                               style: TextStyle(
-                                                color: Colors.white,
+                                                color:themeProvider.themeMode == ThemeMode.dark
+                                                    ? Styles.lightBackground // Dark mode background
+                                                    : Styles.darkBackground,
                                                 fontWeight: FontWeight.bold,
                                                 fontSize: fontSize,
                                               ),

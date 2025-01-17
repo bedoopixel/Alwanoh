@@ -2,6 +2,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart'; // Import Google Maps package
+import 'package:provider/provider.dart';
+import '../Thems/ThemeProvider.dart';
 import '../Thems/styles.dart';
 import 'UseOrdersPage.dart'; // Import your Styles class
 
@@ -25,14 +27,24 @@ class _SelectAddressPageState extends State<SelectAddressPage> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
     return Scaffold(
       appBar: AppBar(
-        title: Text('Select Delivery Address'),
-        backgroundColor: Styles.customColor,
+        title: Text('Select Delivery Address',style: TextStyle(
+          color:themeProvider.themeMode == ThemeMode.dark
+              ? Styles.darkBackground // Dark mode background
+              : Styles.lightBackground,
+        ),),
+        backgroundColor:themeProvider.themeMode == ThemeMode.dark
+            ? Styles.customColor // Dark mode background
+            : Styles.customColor,
       ),
       body: Container(
         decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.9), // Set color with 90% opacity
+          color:themeProvider.themeMode == ThemeMode.dark
+              ? Styles.darkBackground // Dark mode background
+              : Styles.lightBackground,// Set color with 90% opacity
           image: DecorationImage(
             image: AssetImage('assets/back.png'), // Background image
             fit: BoxFit.cover,
@@ -73,7 +85,7 @@ class _SelectAddressPageState extends State<SelectAddressPage> {
                     decoration: BoxDecoration(
                       color: _selectedAddressId == address.id
                           ? Styles.seconderyColor.withOpacity(0.2) // Highlight color when selected
-                          : Styles.customColor,
+                          : Colors.transparent,
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(
                         color: Styles.customColor, // Border color
@@ -97,7 +109,9 @@ class _SelectAddressPageState extends State<SelectAddressPage> {
                           child: ListTile(
                             title: Text(
                               '${address['type']}',
-                              style: TextStyle(color: Styles.primaryColor),
+                              style: TextStyle(  color:themeProvider.themeMode == ThemeMode.dark
+                                  ? Styles.lightBackground // Dark mode background
+                                  : Styles.darkBackground,),
                             ),
                             subtitle: Column(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -106,12 +120,16 @@ class _SelectAddressPageState extends State<SelectAddressPage> {
                                 SizedBox(height: 5,),
                                 Text(
                                   'Description: ${address['description']}',
-                                  style: TextStyle(color: Styles.primaryColor),
+                                  style: TextStyle(  color:themeProvider.themeMode == ThemeMode.dark
+                                      ? Styles.lightBackground // Dark mode background
+                                      : Styles.darkBackground,),
                                 ),
                                 SizedBox(height: 10,),
                                 Text(
                                   'Phone: ${address['phone_number']}',
-                                  style: TextStyle(color: Styles.primaryColor),
+                                  style: TextStyle(color:themeProvider.themeMode == ThemeMode.dark
+                                      ? Styles.lightBackground // Dark mode background
+                                      : Styles.darkBackground,),
                                 ),
                               ],
                             ),
@@ -178,7 +196,9 @@ class _SelectAddressPageState extends State<SelectAddressPage> {
           }
         },
         backgroundColor: Styles.customColor,
-        child: Icon(Icons.save, color: Styles.primaryColor),
+        child: Icon(Icons.save, color:themeProvider.themeMode == ThemeMode.dark
+            ? Styles.darkBackground // Dark mode background
+            : Styles.lightBackground,),
       ),
     );
   }
