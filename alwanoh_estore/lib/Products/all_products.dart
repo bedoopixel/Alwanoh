@@ -253,7 +253,7 @@ class _AllProducts extends State<AllProducts> {
                                                       child: Container(
                                                         padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
                                                         decoration: BoxDecoration(
-                                                          color: Colors.cyan,
+                                                          color: Colors.green,
                                                           borderRadius: BorderRadius.circular(12.0),
                                                         ),
                                                         child: Text(

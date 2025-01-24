@@ -109,6 +109,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     final double? price = product['price'] != null ? double.tryParse(product['price'].toString()) : null;
     final double? discountedPrice = product['discountedPrice'] != null ? double.tryParse(product['discountedPrice'].toString()) : null;
     final int rating = (product['rating'] is int) ? product['rating'] : int.tryParse(product['rating']?.toString() ?? '') ?? 0;
+    final parsedRating = (rating is int) ? rating : int.tryParse(rating?.toString() ?? '') ?? 0;
     final String unit = product['unit'] ?? 'N/A';
     final String? discount = product['discount']?.toString();
     final Map<String, dynamic>? quantities = product['quantities'] as Map<String, dynamic>?;
@@ -136,44 +137,42 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
               child: Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(15.0),
-                  border: Border.all(
-                    color: widget.customColor, // Set the border color
-                    width: 2.0, // Set the border width
-                  ),
                 ),
                 child: Column( // Removed Expanded here to prevent conflict with SingleChildScrollView
                   children: [
-                    Container(
-                      color: Colors.transparent,
-                      padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          IconButton(
-                            icon: Icon(Icons.arrow_back_ios_new_rounded, color: widget.secondaryColor),
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                          ),
-                          Expanded(
-                            child: Text(
-                              name,
-                              style: TextStyle(fontSize: 30.0, fontWeight: FontWeight.bold, color: widget.secondaryColor),
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                          SizedBox(width: 48), // Placeholder for alignment
-                        ],
-                      ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.arrow_back_ios_new_rounded, color: widget.secondaryColor),
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                        ),
+                        Text(
+                          name,
+                          style: TextStyle(fontSize: 30.0, fontWeight: FontWeight.bold, color: widget.secondaryColor),
+                          textAlign: TextAlign.center,
+                        ),
+                        IconButton(onPressed: (){}, icon: Icon(Icons.favorite_border,color:widget.secondaryColor ,))
+                      ],
                     ),
                     // Display images with border radius and border color
-                    Padding(
-                      padding: const EdgeInsets.all(15.0),
-                      child: Container(
-                        height: 250.0,
-                        child: Stack(
-                          children: [
-                            PageView.builder(
+                    Container(
+                      height: 250.0,
+                      child: Stack(
+                        children: [
+                          // Image with border and rounded corners
+                          Container(
+                            decoration: BoxDecoration(
+                              color: Styles.customColor50,
+                              borderRadius: BorderRadius.circular(15.0),
+                              border: Border.all(
+                                color: Colors.grey, // Set the border color
+                                width: 2.0, // Set the border width
+                              ),
+                            ),
+                            child:   PageView.builder(
                               controller: _pageController,
                               itemCount: imageUrls.length,
                               itemBuilder: (context, index) {
@@ -182,34 +181,37 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                                   child: Container(
                                     child: Image.network(
                                       imageUrls[index],
-                                      fit: BoxFit.cover,
+                                      fit: BoxFit.contain,
                                       width: double.infinity, // Make the image take the full width of the container
                                     ),
                                   ),
                                 );
                               },
                             ),
-                            Positioned(
-                              bottom: 5.0,
-                              left: 0,
-                              right: 0,
-                              child: Center(
-                                child: SmoothPageIndicator(
-                                  controller: _pageController,
-                                  count: imageUrls.length,
-                                  effect: WormEffect(
-                                    dotHeight: 8.0,
-                                    dotWidth: 8.0,
-                                    spacing: 16.0,
-                                    radius: 12.0,
-                                    dotColor: Colors.grey,
-                                    activeDotColor: widget.customColor,
-                                  ),
+
+                          ),
+                          // Back Icon
+                          Positioned(
+                            bottom: 5.0,
+                            left: 0,
+                            right: 0,
+                            child: Center(
+                              child: SmoothPageIndicator(
+                                controller: _pageController,
+                                count: imageUrls.length,
+                                effect: WormEffect(
+                                  dotHeight: 8.0,
+                                  dotWidth: 8.0,
+                                  spacing: 16.0,
+                                  radius: 12.0,
+                                  dotColor: Colors.grey,
+                                  activeDotColor: widget.customColor,
                                 ),
                               ),
                             ),
-                          ],
-                        ),
+                          ),
+                          // Favorite Icon
+                        ],
                       ),
                     ),
                     SizedBox(height: 20.0),
@@ -217,12 +219,13 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                 ),
               ),
             ),
-            Padding(
+           Padding(
               padding: const EdgeInsets.only(right: 20, left: 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   SizedBox(height: 15.0),
+
                   if (discount != null)
                     Padding(
                       padding: const EdgeInsets.only(right: 5, left: 5),
@@ -248,9 +251,24 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                               ],
                             ),
                           ),
-                          Text(
-                            type,
-                            style: TextStyle(fontSize: 20.0, color: widget.customColor, decoration: TextDecoration.underline),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Icon(
+                                parsedRating > 0 ? Icons.star_rounded : Icons.star_border_rounded,
+                                color: Styles.customColor,
+                                size: 20,
+                              ),
+                              SizedBox(width: 3),
+                              Text(
+                                '$parsedRating.5',
+                                style: TextStyle(
+                                  fontSize: 13.0,
+                                  fontWeight: FontWeight.bold,
+                                  color: Styles.customColor,
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
@@ -261,19 +279,40 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          Text(
-                            type,
-                            style: TextStyle(fontSize: 20.0, color: widget.secondaryColor, decoration: TextDecoration.underline),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Icon(
+                                parsedRating > 0 ? Icons.star_rounded : Icons.star_border_rounded,
+                                color: Styles.customColor,
+                                size: 20,
+                              ),
+                              SizedBox(width: 3),
+                              Text(
+                                '$parsedRating.5',
+                                style: TextStyle(
+                                  fontSize: 13.0,
+                                  fontWeight: FontWeight.bold,
+                                  color: Styles.customColor,
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
                     ),
                   SizedBox(height: 15.0),
                   Text(
+                    ':الوصف',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 16),
+
+                  Text(
                     description,
                     textAlign: TextAlign.right, // Aligns the text to the right
                     style: TextStyle(
-                      fontSize: 18.0,
+                      fontSize: 16.0,
                       color: widget.secondaryColor,
                     ),
                   ),
@@ -306,18 +345,15 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                     ],
                   ),
                   SizedBox(height: 8.0),
-                  Text(
-                    ' ${'★' * rating}${'☆' * (5 - rating)}',
-                    style: TextStyle(fontSize: 14.0, color: widget.customColor),
-                  ),
+
                   SizedBox(height: 8.0),
                   // Display quantities as a list
                   if (quantityEntries.isNotEmpty) ...[
                     Padding(
                       padding: const EdgeInsets.only(top: 15.0),
                       child: Text(
-                        'Select Quantity:',
-                        style: TextStyle(fontSize: 16.0, color: widget.secondaryColor),
+                        ' :الكمية',
+                        style: TextStyle(fontSize: 18.0,fontWeight: FontWeight.bold, color: widget.secondaryColor),
                       ),
                     ),
                     SizedBox(height: 8.0),
@@ -333,24 +369,37 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                                   _selectedQuantity = entry.key;
                                 });
                               },
-                              child: Container(
+                              child:Container(
                                 height: 40,
                                 margin: const EdgeInsets.symmetric(horizontal: 8.0),
-                                padding: const EdgeInsets.all(9.0),
                                 decoration: BoxDecoration(
-                                  color: _selectedQuantity == entry.key ? widget.customColor : Colors.transparent,
                                   borderRadius: BorderRadius.circular(8.0),
-                                  border: Border.all(
-                                    color: widget.customColor,
-                                    width: 1.5,
-                                  ),
                                 ),
-                                child: Text(
-                                  '${entry.key}مل ',
-                                  style: TextStyle(
-                                    color: _selectedQuantity == entry.key ? Colors.white : widget.customColor,
+                                child: Center(
+                                  child: ChoiceChip(
+                                    label: Text(
+                                      '${entry.key}', // Use the entry.key value
+                                      style: TextStyle(
+                                        color: _selectedQuantity == entry.key ? Colors.white : Colors.white, // White text for both states
+                                      ),
+                                    ),
+                                    selected: _selectedQuantity == entry.key, // Check if this chip is selected
+                                    onSelected: (selected) {
+                                      setState(() {
+                                        _selectedQuantity = selected ? entry.key : null; // Update the selected value
+                                      });
+                                    },
+                                    backgroundColor: Styles.customColor, // Red background for unselected state
+                                    selectedColor: Styles.customColor, // Green background for selected state
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10.0), // Match the container's border radius
+                                      side: BorderSide(color: Styles.customColor), // Remove the default border
+                                    ),
+
+                                    padding: EdgeInsets.symmetric(horizontal: 12.0), // Add padding to center the text
+                                    labelPadding: EdgeInsets.zero, // Remove extra padding around the label
+                                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap, // Reduce tap target size
                                   ),
-                                  textDirection: TextDirection.rtl, // For RTL layout
                                 ),
                               ),
                             );
@@ -369,7 +418,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
       // Floating Action Button for Add to Cart
       floatingActionButton: _selectedQuantity != null
           ? Padding(
-        padding: const EdgeInsets.only(left:30 , right: 0),
+        padding: const EdgeInsets.only(left:50 , right: 0),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [

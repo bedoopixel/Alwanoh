@@ -1,3 +1,4 @@
+import 'package:alwanoh_estore/payments/Tab_payments.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -62,7 +63,7 @@ class MyApp extends StatelessWidget {
         '/home': (context) => Home(),
         '/cart': (context) => SearchPage(),
         '/account': (context) => PersonalScreenWidget(),
-        '/settings': (context) => FavoritePage(),
+        '/settings': (context) => PaymentPage(),
       },
 
     );

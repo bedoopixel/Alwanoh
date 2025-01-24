@@ -1,3 +1,4 @@
+import 'package:alwanoh_estore/Main_Screens/home.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -167,7 +168,7 @@ class _PersonalScreenWidgetState extends State<PersonalScreenWidget> {
                 IconButton(
                   icon: Icon(Icons.arrow_back_ios_new_outlined, color: Styles.customColor),
                   onPressed: () {
-                    Navigator.pop(context);
+                    Navigator.push(context, MaterialPageRoute(builder: (context)=>Home()));
                   },
                 ),
                 Text(
