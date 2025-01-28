@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
+import '../Serves/UserProvider.dart';
 import '../Thems/ThemeProvider.dart';
 import '../Thems/styles.dart';
+import 'DeliveryMethodPage.dart';
 import 'PaymentMethodPage.dart';
 
 class CartBottomSheet extends StatelessWidget {
@@ -18,37 +20,36 @@ class CartBottomSheet extends StatelessWidget {
 
     final String userId = user.uid;
     final themeProvider = Provider.of<ThemeProvider>(context);
+    final userProvider = Provider.of<UserProvider>(context); // Access UserProvider
+    final String? selectedCountry = userProvider.selectedDocument; // Get selected country
 
     return DraggableScrollableSheet(
-      initialChildSize: 0.3,
+      initialChildSize: 0.5,
       minChildSize: 0.2,
       maxChildSize: 1.0, // Allow dragging up to full screen
       builder: (context, scrollController) {
         return Container(
           decoration: BoxDecoration(
-            color:themeProvider.themeMode == ThemeMode.dark
-          ? Styles.darkBackground // Dark mode background
-            : Styles.lightBackground,
+            color: themeProvider.themeMode == ThemeMode.dark
+                ? Styles.darkBackground // Dark mode background
+                : Styles.lightBackground,
             borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
           ),
           child: Column(
             children: [
-              Container(
-                margin: EdgeInsets.only(top: 10),
-                height: 4,
-                width: 40,
-                decoration: BoxDecoration(
-                  color: Colors.grey[400],
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-              SizedBox(height: 10),
-              Text(
-                'Your Cart',
-                style: TextStyle(
-                  color: Styles.customColor,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
+              GestureDetector(
+                onTap: () {
+                  // Trigger the expansion of the sheet when tapped
+                  scrollController.jumpTo(scrollController.position.maxScrollExtent);
+                },
+                child: Container(
+                  margin: EdgeInsets.only(top: 0),
+                  height: 10, // Increased height to ensure it's tappable
+                  width: 40,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[400],
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                 ),
               ),
               Expanded(
@@ -57,6 +58,7 @@ class CartBottomSheet extends StatelessWidget {
                       .collection('users')
                       .doc(userId)
                       .collection('cart')
+                      .where('country', isEqualTo: selectedCountry) // Filter by country
                       .snapshots(),
                   builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
@@ -65,7 +67,12 @@ class CartBottomSheet extends StatelessWidget {
 
                     if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
                       return Center(
-                        child: Text('Your cart is empty', style: TextStyle(fontSize: 18)),
+                        child: Text(
+                          selectedCountry != null
+                              ? 'Your cart for $selectedCountry is empty'
+                              : 'Your cart is empty',
+                          style: TextStyle(fontSize: 18),
+                        ),
                       );
                     }
 
@@ -122,8 +129,12 @@ class CartBottomSheet extends StatelessWidget {
                                     leading: ClipRRect(
                                       borderRadius: BorderRadius.circular(8),
                                       child: imageUrl != null
-                                          ? Image.network(imageUrl, width: 50, height: 50, fit: BoxFit.cover)
-                                          : Icon(Icons.image_not_supported, size: 50),
+                                          ? Image.network(imageUrl,
+                                          width: 50,
+                                          height: 50,
+                                          fit: BoxFit.cover)
+                                          : Icon(Icons.image_not_supported,
+                                          size: 50),
                                     ),
                                     title: Text(
                                       name,
@@ -144,8 +155,7 @@ class CartBottomSheet extends StatelessWidget {
                                 ),
                               );
                             },
-                          )
-
+                          ),
                         ),
                         Padding(
                           padding: const EdgeInsets.all(16.0),
@@ -166,7 +176,8 @@ class CartBottomSheet extends StatelessWidget {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) => PaymentMethodPage(cartItems: cartItems),
+                                        builder: (context) =>
+                                            DeliveryMethodPage(cartItems: cartItems, ),
                                       ),
                                     );
                                   } else {
@@ -193,5 +204,7 @@ class CartBottomSheet extends StatelessWidget {
         );
       },
     );
+    ;
+
   }
 }

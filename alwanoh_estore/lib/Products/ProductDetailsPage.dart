@@ -5,6 +5,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
+import '../Serves/UserProvider.dart';
 import '../Thems/ThemeProvider.dart';
 import '../Thems/styles.dart';
 
@@ -38,57 +39,76 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
 
 
   Future<void> _addToCart() async {
-    if (_selectedQuantity != null) {
-      // Get the current user ID from Firebase Authentication
-      final User? user = FirebaseAuth.instance.currentUser;
-      if (user == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('User not logged in')),
-        );
-        return;
-      }
+    if (_selectedQuantity == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please select a quantity before adding to cart.')),
+      );
+      return;
+    }
 
-      // Extract necessary data for Firestore
-      final String userId = user.uid;
-      final productId = widget.product['id'];
-      final quantity = _selectedQuantity;
-      final price = widget.product['quantities'][quantity];
-      final name = widget.product['name'];
+    // Get the current user ID from Firebase Authentication
+    final User? user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('User not logged in')),
+      );
+      return;
+    }
 
-      // Select the first image
-      final List<String> imageUrls = [
-        widget.product['image1'] as String?,
-        widget.product['image2'] as String?,
-        widget.product['image3'] as String?,
-        widget.product['image4'] as String?,
-      ].whereType<String>().toList();
-      final String? firstImageUrl = imageUrls.isNotEmpty ? imageUrls.first : null;
+    // Access the selected country from the UserProvider
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    final String? selectedCountry = userProvider.selectedDocument;
 
-      // Add product to the Firestore collection for the specific user
-      try {
-        await FirebaseFirestore.instance
-            .collection('users')
-            .doc(userId)
-            .collection('cart') // Create a cart collection under each user
-            .add({
-          'productId': productId,
-          'name': name,
-          'quantity': quantity,
-          'price': price,
-          'image': firstImageUrl, // Add the first image to the cart document
-          'timestamp': FieldValue.serverTimestamp(), // Add timestamp for tracking
-        });
+    if (selectedCountry == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please select a country first.')),
+      );
+      return;
+    }
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Added $quantity to cart')),
-        );
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error adding to cart: $e')),
-        );
-      }
+    // Extract necessary data for Firestore
+    final String userId = user.uid;
+    final productId = widget.product['id'];
+    final quantity = _selectedQuantity;
+    final price = widget.product['quantities'][quantity];
+    final name = widget.product['name'];
+
+    // Select the first image
+    final List<String> imageUrls = [
+      widget.product['image1'] as String?,
+      widget.product['image2'] as String?,
+      widget.product['image3'] as String?,
+      widget.product['image4'] as String?,
+    ].whereType<String>().toList();
+    final String? firstImageUrl = imageUrls.isNotEmpty ? imageUrls.first : null;
+
+    // Add product to the Firestore collection for the specific user
+    try {
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .collection('cart') // Create a cart collection under each user
+          .add({
+        'productId': productId,
+        'name': name,
+        'quantity': quantity,
+        'price': price,
+        'image': firstImageUrl, // Add the first image to the cart document
+        'country': selectedCountry, // Include the selected country
+        'timestamp': FieldValue.serverTimestamp(), // Add timestamp for tracking
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Added $quantity of $name to cart for $selectedCountry')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error adding to cart: $e')),
+      );
     }
   }
+
+
 
 
   @override
@@ -327,20 +347,35 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                           style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold, color: widget.customColor),
                         ),
                       ] else ...[
-                        Text(
-                          ' ${price?.toStringAsFixed(0) ?? 'N/A'} YER',
-                          style: TextStyle(
-                            fontSize: 14.0,
-                            fontWeight: FontWeight.normal,
-                            color: Colors.grey,
-                            decoration: TextDecoration.lineThrough,
-                          ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Text(
+                                  () {
+                                // Ensure we are not null and handle the quantities map and activeQuantity safely
+                                if (product['quantities'] != null && product['activeQuantity'] != null) {
+                                  final activeQuantity = product['activeQuantity'].toString(); // Ensure activeQuantity is a String
+                                  final quantities = product['quantities'] as Map<dynamic, dynamic>; // Handle dynamic keys and values
+
+                                  // Check if the quantities map contains the activeQuantity key
+                                  if (quantities.containsKey(activeQuantity)) {
+                                    final activePrice = quantities[activeQuantity]; // Get the price for activeQuantity
+                                    if (activePrice is num) {
+                                      return '${activePrice.toStringAsFixed(0)}\YER'; // Return the price as a string with fixed decimals
+                                    }
+                                  }
+                                }
+                                // Fallback to discounted price or regular price
+                                return discountedPrice != null
+                                    ? '${discountedPrice.toStringAsFixed(0)}\YER'
+                                    : '${price?.toStringAsFixed(0) ?? '0'}\YER';
+                              }(),
+                              style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold, color: widget.customColor),
+                            ),
+                          ],
                         ),
                         SizedBox(width: 12.0),
-                        Text(
-                          '${discountedPrice?.toStringAsFixed(0)} YER',
-                          style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold, color: widget.customColor),
-                        ),
+
                       ],
                     ],
                   ),
@@ -418,28 +453,33 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
       // Floating Action Button for Add to Cart
       floatingActionButton: _selectedQuantity != null
           ? Padding(
-        padding: const EdgeInsets.only(left:50 , right: 0),
+        padding: const EdgeInsets.only(left: 50, right: 0),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-
             SizedBox(height: 8.0), // Space between price and button
             FloatingActionButton.extended(
               backgroundColor: widget.customColor,
               onPressed: _addToCart, // Call the add to cart function
-              icon: Icon(Icons.shopping_cart,color: Colors.black,),
-              label: Text('Add to Cart',style: TextStyle(color: Colors.black),),
+              icon: Icon(Icons.shopping_cart, color: Colors.black),
+              label: Text('Add to Cart', style: TextStyle(color: Colors.black)),
             ),
           ],
         ),
       )
           : FloatingActionButton.extended(
         backgroundColor: widget.customColor,
-        onPressed: null, // Disable if no quantity is selected
-        icon: Icon(Icons.shopping_cart_outlined,color: Colors.black,),
-        label: Text('Add to Cart',style: TextStyle(color: Colors.black),),
+        onPressed: () {
+          // If no quantity is selected, show an alert
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Please select a quantity before adding to cart.')),
+          );
+        },
+        icon: Icon(Icons.shopping_cart_outlined, color: Colors.black),
+        label: Text('Add to Cart', style: TextStyle(color: Colors.black)),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+
 
       // Position the FAB at the bottom center
     );

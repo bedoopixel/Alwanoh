@@ -80,8 +80,6 @@ class _AllProducts extends State<AllProducts> {
               }
               final oilDocs = oilSnapshot.data!.docs.toList();
               final honeyDocs = honeySnapshot.data!.docs.toList();
-
-      // Filter products based on searchQuery
               final filteredOilDocs = oilDocs.where((doc) {
                 final data = doc.data() as Map<String, dynamic>?; // Cast to Map<String, dynamic>
                 if (data != null) {
@@ -93,7 +91,6 @@ class _AllProducts extends State<AllProducts> {
                 }
                 return false;
               }).toList();
-
               final filteredHoneyDocs = honeyDocs.where((doc) {
                 final data = doc.data() as Map<String, dynamic>?; // Cast to Map<String, dynamic>
                 if (data != null) {
@@ -106,9 +103,6 @@ class _AllProducts extends State<AllProducts> {
                 return false;
               }).toList();
 
-
-
-      // Combine the filtered oil and honey products
               final allProducts = [
                 ...filteredOilDocs.map((doc) => {
                   ...doc.data() as Map<String, dynamic>,
@@ -121,20 +115,10 @@ class _AllProducts extends State<AllProducts> {
                   'type': 'Honey',
                 }),
               ];
-
-
-
-
-
-
-
               return LayoutBuilder(
                 builder: (context, constraints) {
-
                   int crossAxisCount = constraints.maxWidth > 1200 ? 8 : (constraints.maxWidth > 767 ? 5 : 2);
                   double childAspectRatio = constraints.maxWidth > 1024 ? 0.50 : (constraints.maxWidth > 767 ? 0.90 : 0.70);
-
-
                   return GridView.builder(
                     shrinkWrap: true,
                     physics: ScrollPhysics(),
@@ -154,7 +138,6 @@ class _AllProducts extends State<AllProducts> {
                         product['image3'] as String? ?? '',
                         product['image4'] as String? ?? '',
                       ].where((url) => url.isNotEmpty).toList();
-
                       final name = product['name'] as String? ?? 'No Name';
                       final price = product['price'] != null ? double.tryParse(product['price'].toString()) : null;
                       final discountedPrice = product['discountedPrice'] != null ? double.tryParse(product['discountedPrice'].toString()) : null;
@@ -162,17 +145,13 @@ class _AllProducts extends State<AllProducts> {
                       final parsedRating = (rating is int) ? rating : int.tryParse(rating?.toString() ?? '') ?? 0;
                       final type = product['type'] as String? ?? 'Unknown';
                       final isNew = product['isNew'] as bool? ?? false;
-
                       final quantities = product['quantities'] as Map<String, dynamic>? ?? {};
                       final quantityTexts = quantities.entries.map((entry) => '${entry.key}: ${entry.value}').join(', ');
-
                       final discount = product['discount'] != null
                           ? (product['discount'] is num ? (product['discount'] as num).toString() : product['discount'].toString())
                           : '';
-
                       final PageController pageController = PageController();
                       bool isFavorite = false;
-
                       return FutureBuilder<bool>(
                         future: userId != null ? _isProductFavorite(userId, product['id'] as String) : Future.value(false),
                         builder: (context, snapshot) {
@@ -180,12 +159,10 @@ class _AllProducts extends State<AllProducts> {
                             return const Center(child: CircularProgressIndicator());
                           }
                           isFavorite = snapshot.data ?? false;
-
                           return LayoutBuilder(
                             builder: (context, constraints) {
                               double fontSize = constraints.maxWidth > 1024 ? 14.0 : 12.0;
                               double imageHeight = constraints.maxWidth > 1024 ? 50 : 50;
-
                               return GestureDetector(
                                 onTap: () {
                                   Navigator.push(
@@ -195,17 +172,13 @@ class _AllProducts extends State<AllProducts> {
                                     ),
                                   );
                                 },
-                                child: Card(
+                                child:  Card(
                                   elevation: 5,
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(15.0),
-                                    side: BorderSide(
-                                      color: Styles.customColor,
-                                      width: 2.0,
-                                    ),
+                                    borderRadius: BorderRadius.circular(20.0),
                                   ),
                                   color:themeProvider.themeMode == ThemeMode.dark
-                                      ? Styles.darkBackground // Dark mode background
+                                      ? Styles.darkcardBackground // Dark mode background
                                       : Styles.lightBackground,
                                   child: Stack(
                                     children: [
@@ -228,10 +201,10 @@ class _AllProducts extends State<AllProducts> {
                                                           height: imageHeight,
                                                           decoration: BoxDecoration(
                                                             color: Styles.customColor.withOpacity(0.5),
-                                                            borderRadius: BorderRadius.circular(10.0),
+                                                            borderRadius: BorderRadius.circular(20.0),
                                                           ),
                                                           child: ClipRRect(
-                                                            borderRadius: BorderRadius.circular(10.0),
+                                                            borderRadius: BorderRadius.circular(20.0),
                                                             child: Opacity(
                                                               opacity: 0.7,
                                                               child: Image.network(
@@ -248,7 +221,7 @@ class _AllProducts extends State<AllProducts> {
                                                   ),
                                                   if (discount.isNotEmpty)
                                                     Positioned(
-                                                      bottom: 30.0,
+                                                      bottom: 20.0,
                                                       right: 18.0,
                                                       child: Container(
                                                         padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
@@ -257,7 +230,7 @@ class _AllProducts extends State<AllProducts> {
                                                           borderRadius: BorderRadius.circular(12.0),
                                                         ),
                                                         child: Text(
-                                                          '$discount% Off',
+                                                          '$discount% ',
                                                           style: const TextStyle(
                                                             color: Colors.white,
                                                             fontWeight: FontWeight.bold,
@@ -307,94 +280,111 @@ class _AllProducts extends State<AllProducts> {
                                                       ),
                                                     ),
                                                   ),
-
-
                                                 ],
                                               ),
                                             ),
                                           ),
-
                                           Padding(
-                                            padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 0.0),
-                                            child: Row(
-                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            padding: const EdgeInsets.only(left: 15),
+                                            child: Column(
+                                              mainAxisAlignment: MainAxisAlignment.start,
                                               children: [
-                                                Container(
-                                                  child: Row(
-                                                    mainAxisAlignment: MainAxisAlignment.start,
-                                                    children: [
-                                                      Icon(
-                                                        parsedRating > 0 ? Icons.star_rounded : Icons.star_border_rounded,
+                                                Row(
+                                                  mainAxisAlignment: MainAxisAlignment.start,
+                                                  children: [
+                                                    Icon(
+                                                      parsedRating > 0 ? Icons.star_rounded : Icons.star_border_rounded,
+                                                      color: Styles.customColor,
+                                                      size: 20,
+                                                    ),
+                                                    SizedBox(width: 3),
+                                                    Text(
+                                                      '$parsedRating.5',
+                                                      style: TextStyle(
+                                                        fontSize: 13.0,
+                                                        fontWeight: FontWeight.bold,
                                                         color: Styles.customColor,
-                                                        size: 20,
                                                       ),
-                                                      SizedBox(width: 3),
-                                                      Text(
-                                                        '$parsedRating.5',
-                                                        style: TextStyle(
-                                                          fontSize: 13.0,
-                                                          fontWeight: FontWeight.bold,
-                                                          color: Styles.customColor,
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
+                                                    ),
+                                                  ],
                                                 ),
-                                                Container(
-                                                  child: Row(
-                                                    mainAxisAlignment: MainAxisAlignment.end,
-                                                    children: [
-                                                      Text(
-                                                        type,
-                                                        style: TextStyle(
-                                                          fontSize: 12.0,
-                                                          fontWeight: FontWeight.bold,
-                                                          color: Styles.customColor,
-                                                        ),
+                                                SizedBox(height: 5,),
+                                                Row(
+                                                  mainAxisAlignment: MainAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      type,
+                                                      style: TextStyle(
+                                                        color:themeProvider.themeMode == ThemeMode.dark
+                                                            ? Styles.lightBackground // Dark mode background
+                                                            : Styles.darkBackground,
+                                                        fontSize: fontSize +2,
                                                       ),
-                                                    ],
-                                                  ),
+                                                    ),
+                                                  ],
                                                 ),
+                                                SizedBox(height: 5,),
+                                                Row(
+                                                  mainAxisAlignment: MainAxisAlignment.start,
+
+                                                  children: [
+                                                    Text(
+                                                      name,
+                                                      style: TextStyle(
+                                                        color:themeProvider.themeMode == ThemeMode.dark
+                                                            ? Styles.lightBackground // Dark mode background
+                                                            : Styles.darkBackground,
+                                                        fontSize: fontSize +2,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                                SizedBox(height: 5,),
+                                                Row(
+                                                  mainAxisAlignment: MainAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                          () {
+                                                        // Ensure we are not null and handle the quantities map and activeQuantity safely
+                                                        if (product['quantities'] != null && product['activeQuantity'] != null) {
+                                                          final activeQuantity = product['activeQuantity'].toString(); // Ensure activeQuantity is a String
+                                                          final quantities = product['quantities'] as Map<dynamic, dynamic>; // Handle dynamic keys and values
+
+                                                          // Check if the quantities map contains the activeQuantity key
+                                                          if (quantities.containsKey(activeQuantity)) {
+                                                            final activePrice = quantities[activeQuantity]; // Get the price for activeQuantity
+                                                            if (activePrice is num) {
+                                                              return '${activePrice.toStringAsFixed(0)}\$'; // Return the price as a string with fixed decimals
+                                                            }
+                                                          }
+                                                        }
+                                                        // Fallback to discounted price or regular price
+                                                        return discountedPrice != null
+                                                            ? '${discountedPrice.toStringAsFixed(0)}\$'
+                                                            : '${price?.toStringAsFixed(0) ?? '0.00'}\$';
+                                                      }(),
+                                                      style: TextStyle(
+                                                        color: themeProvider.themeMode == ThemeMode.dark
+                                                            ? Styles.lightBackground // Dark mode background
+                                                            : Styles.darkBackground,
+                                                        fontWeight: FontWeight.bold,
+                                                        fontSize: fontSize + 4, // Slightly larger for price
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+
+
+
+
+                                                SizedBox(height: 5,),
                                               ],
-                                            ),
-                                          ),
-                                          Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: Text(
-                                              name,
-                                              style: TextStyle(
-                                                color:themeProvider.themeMode == ThemeMode.dark
-                                                    ? Styles.lightBackground // Dark mode background
-                                                    : Styles.darkBackground,
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: fontSize,
-                                              ),
-                                            ),
-                                          ),
-                                          Container(
-                                            width: double.infinity,
-                                            decoration: BoxDecoration(
-                                              color: Styles.customColor,
-                                              borderRadius: BorderRadius.vertical(bottom: Radius.circular(15.0)),
-                                            ),
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: Center(
-                                              child: Text(
-                                                discountedPrice != null
-                                                    ? '\YR ${discountedPrice.toStringAsFixed(0)}'
-                                                    : '\YR ${price?.toStringAsFixed(0) ?? ''}',
-                                                style: TextStyle(
-                                                  color: Colors.white,
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: fontSize + 8, // Slightly larger for price
-                                                ),
-                                              ),
                                             ),
                                           ),
                                         ],
                                       ),
                                       Positioned(
-                                        top: 8.0,
+                                        top: 2.0,
                                         right: 8.0,
                                         child: IconButton(
                                           icon: Icon(

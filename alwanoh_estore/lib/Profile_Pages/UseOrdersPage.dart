@@ -9,27 +9,29 @@ import '../Thems/styles.dart';
 import 'OrdersManagementPage.dart'; // Import your Styles class
 
 class UseOrdersPage extends StatelessWidget {
-
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Your Orders',style: TextStyle(
-          color:themeProvider.themeMode == ThemeMode.dark
-              ? Styles.darkBackground // Dark mode background
-              : Styles.lightBackground,
-        ),),
-        backgroundColor:themeProvider.themeMode == ThemeMode.dark
+        title: Text(
+          'Your Orders',
+          style: TextStyle(
+            color: themeProvider.themeMode == ThemeMode.dark
+                ? Styles.darkBackground // Dark mode background
+                : Styles.lightBackground,
+          ),
+        ),
+        backgroundColor: themeProvider.themeMode == ThemeMode.dark
             ? Styles.customColor // Dark mode background
             : Styles.customColor,
       ),
       body: Container(
         decoration: BoxDecoration(
-          color:themeProvider.themeMode == ThemeMode.dark
+          color: themeProvider.themeMode == ThemeMode.dark
               ? Styles.darkBackground // Dark mode background
-              : Styles.lightBackground,// Set color with 90% opacity
+              : Styles.lightBackground, // Set color with 90% opacity
           image: DecorationImage(
             image: AssetImage('assets/back.png'), // Background image
             fit: BoxFit.cover,
@@ -43,15 +45,24 @@ class UseOrdersPage extends StatelessWidget {
             }
 
             if (snapshot.hasError) {
-              return Center(child: Text('Error: ${snapshot.error}', style: TextStyle(color: Colors.red)));
+              return Center(
+                  child: Text('Error: ${snapshot.error}',
+                      style: TextStyle(color: Colors.red)));
             }
 
             if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
               return Center(child: Text('No orders found.'));
             }
 
-            // Extracting orders data for further processing
-            var order_management = snapshot.data!.docs;
+            // Filter out documents that don't have the cart_items field
+            var order_management = snapshot.data!.docs.where((doc) {
+              var data = doc.data() as Map<String, dynamic>?; // Cast to Map
+              return data != null && data.containsKey('cart_items'); // Check for cart_items
+            }).toList();
+
+            if (order_management.isEmpty) {
+              return Center(child: Text('No valid orders found.'));
+            }
 
             return Column(
               children: [
@@ -60,6 +71,9 @@ class UseOrdersPage extends StatelessWidget {
                     itemCount: order_management.length,
                     itemBuilder: (context, index) {
                       var order = order_management[index];
+                      var data = order.data() as Map<String, dynamic>; // Cast to Map
+                      var cartItems = data['cart_items'] ?? []; // Handle null cart_items
+
                       return Container(
                         margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                         padding: const EdgeInsets.all(16.0),
@@ -70,8 +84,9 @@ class UseOrdersPage extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            FutureBuilder<Map<String, dynamic>?>( // Fetch address
-                              future: _fetchAddressById(order['address_id']),
+                            FutureBuilder<Map<String, dynamic>?>(
+                              // Fetch address
+                              future: _fetchAddressById(data['address_id']),
                               builder: (context, snapshot) {
                                 if (snapshot.connectionState == ConnectionState.waiting) {
                                   return Center(child: CircularProgressIndicator());
@@ -89,9 +104,9 @@ class UseOrdersPage extends StatelessWidget {
                                   padding: EdgeInsets.all(20), // Adjusted padding
                                   margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16), // Same margin
                                   decoration: BoxDecoration(
-                                      color:themeProvider.themeMode == ThemeMode.dark
-                                          ? Styles.darkBackground // Dark mode background
-                                          : Styles.lightBackground, // Use secondaryColor for the background
+                                    color: themeProvider.themeMode == ThemeMode.dark
+                                        ? Styles.darkBackground // Dark mode background
+                                        : Styles.lightBackground, // Use secondaryColor for the background
                                     borderRadius: BorderRadius.circular(10), // Rounded corners
                                     border: Border.all(
                                       color: Styles.customColor, // Border color
@@ -101,16 +116,25 @@ class UseOrdersPage extends StatelessWidget {
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Text('Type: ${address['type']}', style: TextStyle(fontWeight: FontWeight.w500, color: Styles.customColor)),
-                                      Text('Description: ${address['description']}', style: TextStyle(fontWeight: FontWeight.w500, color: Styles.customColor)),
-                                      Text('Phone: ${address['phone_number']}', style: TextStyle(fontWeight: FontWeight.w500, color: Styles.customColor)),
+                                      Text('Type: ${address['type']}',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w500,
+                                              color: Styles.customColor)),
+                                      Text('Description: ${address['description']}',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w500,
+                                              color: Styles.customColor)),
+                                      Text('Phone: ${address['phone_number']}',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w500,
+                                              color: Styles.customColor)),
                                     ],
                                   ),
                                 );
                               },
                             ),
                             SizedBox(height: 16),
-                            ..._buildCartItemsWidgets(order['cart_items'],context),
+                            ..._buildCartItemsWidgets(cartItems, context),
                           ],
                         ),
                       );
@@ -145,17 +169,20 @@ class UseOrdersPage extends StatelessWidget {
                                     context,
                                     MaterialPageRoute(builder: (context) => OrdersManagementPage()),
                                   );
-                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Order placed successfully')));
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text('Order placed successfully')));
                                 } else {
-                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('User not authenticated')));
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text('User not authenticated')));
                                 }
                               },
                               child: Text('Order',
-                                  style: TextStyle(color:themeProvider.themeMode == ThemeMode.dark
-                                      ? Styles.lightBackground // Dark mode background
-                                      : Styles.darkBackground,)),
+                                  style: TextStyle(
+                                      color: themeProvider.themeMode == ThemeMode.dark
+                                          ? Styles.lightBackground // Dark mode background
+                                          : Styles.darkBackground)),
                               style: ElevatedButton.styleFrom(
-                                backgroundColor:themeProvider.themeMode == ThemeMode.dark
+                                backgroundColor: themeProvider.themeMode == ThemeMode.dark
                                     ? Styles.darkBackground // Dark mode background
                                     : Styles.lightBackground,
                                 minimumSize: Size(200, 50),
@@ -163,8 +190,7 @@ class UseOrdersPage extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(30),
                                 ),
                               ),
-                            )
-                        ),
+                            )),
                       ),
                     ],
                   ),
@@ -183,7 +209,9 @@ class UseOrdersPage extends StatelessWidget {
 
     // Calculate the total cost from all orders
     for (var order in orders) {
-      totalCost += _calculateTotalCost(order['cart_items']);
+      var data = order.data() as Map<String, dynamic>; // Cast to Map
+      var cartItems = data['cart_items'] ?? []; // Handle null cart_items
+      totalCost += _calculateTotalCost(cartItems);
     }
 
     return Column(
@@ -298,7 +326,6 @@ class UseOrdersPage extends StatelessWidget {
     }).toList();
   }
 
-
   Future<Map<String, dynamic>?> _fetchAddressById(String addressId) async {
     try {
       final user = FirebaseAuth.instance.currentUser;
@@ -324,7 +351,7 @@ class UseOrdersPage extends StatelessWidget {
 
   double _calculateTotalCost(List<dynamic> cartItems) {
     double total = 0.0;
-    for (var item in cartItems) {
+    for (var item in cartItems ?? []) {
       total += (item['price'] ?? 0);
     }
     return total;
@@ -336,23 +363,24 @@ class UseOrdersPage extends StatelessWidget {
   }
 
   Future<void> _saveOrderToFirestore(
-      DocumentReference orderRef,
-      String userId,
-      List<QueryDocumentSnapshot> orders,) async {
+      DocumentReference orderRef, String userId, List<QueryDocumentSnapshot> orders) async {
     double totalCost = 0.0;
     double deliveryCost = 1000.0;
 
     // Calculate total cost
     for (var order in orders) {
-      totalCost += _calculateTotalCost(order['cart_items']);
+      var data = order.data() as Map<String, dynamic>; // Cast to Map
+      var cartItems = data['cart_items'] ?? []; // Handle null cart_items
+      totalCost += _calculateTotalCost(cartItems);
     }
 
     // Flatten cart items (avoiding nested arrays)
     List<Map<String, dynamic>> allCartItems = [];
     String? addressId; // To store the address ID
     for (var order in orders) {
-      List<dynamic> cartItems = order['cart_items'];
-      addressId = order['address_id']; // Fetch the address_id from the order
+      var data = order.data() as Map<String, dynamic>; // Cast to Map
+      List<dynamic> cartItems = data['cart_items'] ?? []; // Handle null cart_items
+      addressId = data['address_id']; // Fetch the address_id from the order
       cartItems.forEach((item) {
         allCartItems.add(Map<String, dynamic>.from(item));
       });
@@ -382,7 +410,6 @@ class UseOrdersPage extends StatelessWidget {
     // Delete all documents from the user's cart collection
     await _clearUserCart(userId);
   }
-
 
   Future<void> _clearUserCart(String userId) async {
     var cartCollection = FirebaseFirestore.instance.collection('users').doc(userId).collection('cart');

@@ -160,7 +160,7 @@ class _ProductsAll extends State<ProductsAll> {
                                   borderRadius: BorderRadius.circular(20.0),
                                 ),
                                 color:themeProvider.themeMode == ThemeMode.dark
-                                    ? Styles.darkBackground // Dark mode background
+                                    ? Styles.darkcardBackground // Dark mode background
                                     : Styles.lightBackground,
                                 child: Stack(
                                   children: [
@@ -191,7 +191,7 @@ class _ProductsAll extends State<ProductsAll> {
                                                             opacity: 0.7,
                                                             child: Image.network(
                                                               imageUrl,
-                                                              fit: BoxFit.contain,
+                                                              fit: BoxFit.cover,
                                                               width: double.infinity,
                                                               height: imageHeight,
                                                             ),
@@ -270,7 +270,7 @@ class _ProductsAll extends State<ProductsAll> {
                                         ),
 
                                         Padding(
-                                          padding: const EdgeInsets.only(left: 10),
+                                          padding: const EdgeInsets.only(left: 15),
                                           child: Column(
                                             mainAxisAlignment: MainAxisAlignment.start,
 
@@ -297,6 +297,21 @@ class _ProductsAll extends State<ProductsAll> {
                                               SizedBox(height: 5,),
                                               Row(
                                                 mainAxisAlignment: MainAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    type,
+                                                    style: TextStyle(
+                                                      color:themeProvider.themeMode == ThemeMode.dark
+                                                          ? Styles.lightBackground // Dark mode background
+                                                          : Styles.darkBackground,
+                                                      fontSize: fontSize +2,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              SizedBox(height: 5,),
+                                              Row(
+                                                mainAxisAlignment: MainAxisAlignment.start,
 
                                                 children: [
                                                   Text(
@@ -313,16 +328,33 @@ class _ProductsAll extends State<ProductsAll> {
                                               SizedBox(height: 5,),
                                               Row(
                                                 mainAxisAlignment: MainAxisAlignment.start,
-
                                                 children: [
                                                   Text(
-                                                    discountedPrice != null
-                                                        ? '${discountedPrice.toStringAsFixed(0)}\$'
-                                                        : '${price?.toStringAsFixed(0) ?? '0.00'}\$',
+                                                        () {
+                                                      // Ensure we are not null and handle the quantities map and activeQuantity safely
+                                                      if (product['quantities'] != null && product['activeQuantity'] != null) {
+                                                        final activeQuantity = product['activeQuantity'].toString(); // Ensure activeQuantity is a String
+                                                        final quantities = product['quantities'] as Map<dynamic, dynamic>; // Handle dynamic keys and values
+
+                                                        // Check if the quantities map contains the activeQuantity key
+                                                        if (quantities.containsKey(activeQuantity)) {
+                                                          final activePrice = quantities[activeQuantity]; // Get the price for activeQuantity
+                                                          if (activePrice is num) {
+                                                            return '${activePrice.toStringAsFixed(0)}\$'; // Return the price as a string with fixed decimals
+                                                          }
+                                                        }
+                                                      }
+                                                      // Fallback to discounted price or regular price
+                                                      return discountedPrice != null
+                                                          ? '${discountedPrice.toStringAsFixed(0)}\$'
+                                                          : '${price?.toStringAsFixed(0) ?? '0.00'}\$';
+                                                    }(),
                                                     style: TextStyle(
-                                                      color: Colors.black,
+                                                      color: themeProvider.themeMode == ThemeMode.dark
+                                                          ? Styles.lightBackground // Dark mode background
+                                                          : Styles.darkBackground,
                                                       fontWeight: FontWeight.bold,
-                                                      fontSize: fontSize + 2, // Slightly larger for price
+                                                      fontSize: fontSize + 4, // Slightly larger for price
                                                     ),
                                                   ),
                                                 ],

@@ -7,7 +7,8 @@ class Styles {
   static const Color primaryColor = Color(0xFF000000);
   static const Color seconderyColor = Color(0xFF131010);
   static const Color shineColor = Color(0xFFA8835A);
-  static const Color darkBackground = Color(0xFF000000); // Dark mode background
+  static const Color darkBackground = Color(0xFF000000);
+  static const Color darkcardBackground = Color(0xFF232121); // Dark mode background
   static const Color lightBackground = Color(0xFFFFFFFF); // Light mode background
 
   // Light theme

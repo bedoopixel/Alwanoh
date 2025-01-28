@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'Products/ProductDetailsPage.dart';
 import 'Serves/UserProvider.dart';
+import 'Thems/ThemeProvider.dart';
 import 'Thems/styles.dart';
 
 class SearchResult extends StatefulWidget {
@@ -183,13 +184,15 @@ class _SearchResult extends State<SearchResult> {
     final discount = product['discount']?.toString() ?? '';
     final isNew = product['isNew'] as bool? ?? false;
     final type = product['type'] as String? ?? 'Unknown';
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
 
     return FutureBuilder<bool>(
       future: userId != null
           ? _isProductFavorite(userId, product['id'])
           : Future.value(false),
-      builder: (context, snapshot) {
-        final isFavorite = snapshot.data ?? false;
+      builder: (context, snapshot,) {
+        var isFavorite = snapshot.data ?? false;
         return GestureDetector(
           onTap: () =>
               Navigator.push(
@@ -198,31 +201,205 @@ class _SearchResult extends State<SearchResult> {
                   builder: (context) => ProductDetailsPage(product: product),
                 ),
               ),
-          child: Card(
+          child:  Card(
             elevation: 5,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15.0),
-              side: BorderSide(color: Styles.customColor, width: 2.0),
+              borderRadius: BorderRadius.circular(20.0),
             ),
-            color: Colors.black,
+            color:themeProvider.themeMode == ThemeMode.dark
+                ? Styles.darkcardBackground // Dark mode background
+                : Styles.lightBackground,
             child: Stack(
               children: [
-                _buildProductContent(
-                  imageUrls,
-                  pageController,
-                  discount,
-                  isNew,
-                  name,
-                  price,
-                  discountedPrice,
-                  rating,
-                    type,
-                    parsedRating ,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      child: ClipRRect(
+                        borderRadius: const BorderRadius.vertical(top: Radius.circular(15.0)),
+                        child: Stack(
+                          children: [
+                            PageView.builder(
+                              controller: pageController,
+                              itemCount: imageUrls.length,
+                              itemBuilder: (context, imageIndex) {
+                                final imageUrl = imageUrls[imageIndex];
+                                return Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Container(
+                                    height: imageHeight,
+                                    decoration: BoxDecoration(
+                                      color: Styles.customColor.withOpacity(0.5),
+                                      borderRadius: BorderRadius.circular(20.0),
+                                    ),
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(20.0),
+                                      child: Opacity(
+                                        opacity: 0.7,
+                                        child: Image.network(
+                                          imageUrl,
+                                          fit: BoxFit.cover,
+                                          width: double.infinity,
+                                          height: imageHeight,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                            if (discount.isNotEmpty)
+                              Positioned(
+                                bottom: 20.0,
+                                right: 18.0,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                                  decoration: BoxDecoration(
+                                    color: Colors.green,
+                                    borderRadius: BorderRadius.circular(12.0),
+                                  ),
+                                  child: Text(
+                                    '$discount% ',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 12.0,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            if (isNew)
+                              Positioned(
+                                top: 14.0,
+                                left: 16.0,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                                  decoration: BoxDecoration(
+                                    color: Colors.red,
+                                    borderRadius: BorderRadius.circular(12.0),
+                                  ),
+                                  child: const Text(
+                                    'New',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 12.0,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            Positioned(
+                              bottom: 15.0,
+                              left: 0,
+                              right: 0,
+                              child: Center(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(0.2),
+                                  child: SmoothPageIndicator(
+                                    controller: pageController,
+                                    count: imageUrls.length,
+                                    effect: ExpandingDotsEffect(
+                                      activeDotColor: Styles.customColor,
+                                      dotColor: Styles.customColor50,
+                                      dotHeight: 5,
+                                      dotWidth: 5,
+                                      spacing: 2.5,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
 
 
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    Padding(
+                      padding: const EdgeInsets.only(left: 15),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Icon(
+                                parsedRating > 0 ? Icons.star_rounded : Icons.star_border_rounded,
+                                color: Styles.customColor,
+                                size: 20,
+                              ),
+                              SizedBox(width: 3),
+                              Text(
+                                '$parsedRating.5',
+                                style: TextStyle(
+                                  fontSize: 13.0,
+                                  fontWeight: FontWeight.bold,
+                                  color: Styles.customColor,
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 5,),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Text(
+                                type,
+                                style: TextStyle(
+                                  color:themeProvider.themeMode == ThemeMode.dark
+                                      ? Styles.lightBackground // Dark mode background
+                                      : Styles.darkBackground,
+                                  fontSize:  16,
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 5,),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+
+                            children: [
+                              Text(
+                                name,
+                                style: TextStyle(
+                                  color:themeProvider.themeMode == ThemeMode.dark
+                                      ? Styles.lightBackground // Dark mode background
+                                      : Styles.darkBackground,
+                                  fontSize:  16,
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 5,),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+
+                            children: [
+                              Text(
+                                discountedPrice != null
+                                    ? '${discountedPrice.toStringAsFixed(0)}\$'
+                                    : '${price?.toStringAsFixed(0) ?? '0.00'}\$',
+                                style: TextStyle(
+                                  color:themeProvider.themeMode == ThemeMode.dark
+                                      ? Styles.lightBackground // Dark mode background
+                                      : Styles.darkBackground,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 20 , // Slightly larger for price
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 5,),
+
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
                 Positioned(
-                  top: 8.0,
+                  top: 2.0,
                   right: 8.0,
                   child: IconButton(
                     icon: Icon(
@@ -230,13 +407,13 @@ class _SearchResult extends State<SearchResult> {
                       color: Colors.red,
                     ),
                     onPressed: () async {
-                      if (userId != null) {
-                        if (isFavorite) {
-                          await _removeFromFavorites(userId, product['id']);
-                        } else {
-                          await _addToFavorites(userId, product['id'], product);
-                        }
-                        setState(() {});
+                      setState(() {
+                        isFavorite = !isFavorite;
+                      });
+                      if (isFavorite) {
+                        await _addToFavorites(userId!, product['id'] as String,product);
+                      } else {
+                        await _removeFromFavorites(userId!, product['id'] as String);
                       }
                     },
                   ),
@@ -249,196 +426,7 @@ class _SearchResult extends State<SearchResult> {
     );
   }
 
-  Widget _buildProductContent(List<String> imageUrls,
-      PageController pageController,
-      String discount,
-      bool isNew,
-      String name,
-      double? price,
-      double? discountedPrice,
-      int rating,
-      String type,
-      int parsedRating) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Expanded(
-          child: ClipRRect(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(15.0)),
-            child: Stack(
-              children: [
-                PageView.builder(
-                  controller: pageController,
-                  itemCount: imageUrls.length,
-                  itemBuilder: (context, imageIndex) {
-                    final imageUrl = imageUrls[imageIndex];
-                    return Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Container(
-                        height: imageHeight,
-                        decoration: BoxDecoration(
-                          color: Styles.customColor.withOpacity(0.5),
-                          borderRadius: BorderRadius.circular(10.0),
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(10.0),
-                          child: Opacity(
-                            opacity: 0.7,
-                            child: Image.network(
-                              imageUrl,
-                              fit: BoxFit.cover,
-                              width: double.infinity,
-                              height: imageHeight,
-                            ),
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-                if (discount.isNotEmpty)
-                  Positioned(
-                    bottom: 30.0,
-                    right: 18.0,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-                      decoration: BoxDecoration(
-                        color: Colors.green,
-                        borderRadius: BorderRadius.circular(12.0),
-                      ),
-                      child: Text(
-                        '$discount% Off',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12.0,
-                        ),
-                      ),
-                    ),
-                  ),
-                if (isNew)
-                  Positioned(
-                    top: 14.0,
-                    left: 16.0,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-                      decoration: BoxDecoration(
-                        color: Colors.red,
-                        borderRadius: BorderRadius.circular(12.0),
-                      ),
-                      child: const Text(
-                        'New',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12.0,
-                        ),
-                      ),
-                    ),
-                  ),
-                Positioned(
-                  bottom: 15.0,
-                  left: 0,
-                  right: 0,
-                  child: Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(0.2),
-                      child: SmoothPageIndicator(
-                        controller: pageController,
-                        count: imageUrls.length,
-                        effect: ExpandingDotsEffect(
-                          activeDotColor: Styles.customColor,
-                          dotColor: Styles.customColor50,
-                          dotHeight: 5,
-                          dotWidth: 5,
-                          spacing: 2.5,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
 
-
-              ],
-            ),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 0.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Container(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Icon(
-                      rating > 0 ? Icons.star_rounded : Icons.star_border_rounded,
-                      color: Styles.customColor,
-                      size: 20,
-                    ),
-                    SizedBox(width: 3),
-                    Text(
-                      '$parsedRating.5',
-                      style: TextStyle(
-                        fontSize: 13.0,
-                        fontWeight: FontWeight.bold,
-                        color: Styles.customColor,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Text(
-                      type,
-                      style: TextStyle(
-                        fontSize: 12.0,
-                        fontWeight: FontWeight.bold,
-                        color: Styles.customColor,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Text(
-            name,
-            style: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-        Container(
-          decoration: BoxDecoration(
-            color: Styles.customColor,
-            borderRadius: const BorderRadius.vertical(
-                bottom: Radius.circular(15.0)),
-          ),
-          padding: const EdgeInsets.all(8.0),
-          child: Center(
-            child: Text(
-              discountedPrice != null
-                  ? '\YR ${discountedPrice.toStringAsFixed(0)}'
-                  : '\YR ${price?.toStringAsFixed(0) ?? ''}',
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
 
   Future<bool> _isProductFavorite(String userId, String productId) async {
     final doc = await FirebaseFirestore.instance

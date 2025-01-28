@@ -208,18 +208,26 @@ class _OrdersManagementPageState extends State<OrdersManagementPage> {
   Stream<QuerySnapshot> _fetchSavedOrders(String status) {
     final User? user = FirebaseAuth.instance.currentUser;
     if (user == null) {
+      print('User is not authenticated.');
       return Stream.empty();
     }
 
     String userId = user.uid;
-    return FirebaseFirestore.instance
-        .collection('users')
-        .doc(userId)
-        .collection('user_order')
-        .where('status', isEqualTo: status) // Filter by selected status
-        .orderBy('status') // Ascending order for status
-        .orderBy('timestamp', descending: true) // Descending order for timestamp
-        .snapshots();
+    print('Fetching orders for user: $userId with status: $status');
+
+    try {
+      return FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .collection('user_order')
+          .where('status', isEqualTo: status)
+          .orderBy('status')
+          .orderBy('timestamp', descending: true)
+          .snapshots();
+    } catch (e) {
+      print('Error fetching orders: $e');
+      return Stream.empty();
+    }
   }
 
   String _formatCurrency(double amount) {

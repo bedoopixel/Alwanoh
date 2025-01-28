@@ -1,13 +1,9 @@
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:firebase_storage/firebase_storage.dart';
+import 'package:alwanoh_estore/test/constants.dart';
+import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
-
-import '../Cart/CartPage.dart';
-import '../Favorite/FavoritesPage.dart';
 import '../Thems/styles.dart';
-import 'Main_Screens/HomePage.dart';
+import 'Cart/CartPage.dart';
 import 'Search_Result.dart';
 import 'Thems/ThemeProvider.dart';
 
@@ -32,7 +28,15 @@ class _SearchPage extends State<SearchPage> {
 
     // Handle navigation or actions based on the selected index
   }
+  int currentIndexBottomBar = 1;
+  int currentIndexSwiperHome = 0;
 
+  final iconList = <IconData>[
+    Icons.home_outlined,
+    Icons.search,
+    Icons.person_outline,
+    Icons.favorite_border_outlined,
+  ];
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
@@ -78,6 +82,78 @@ class _SearchPage extends State<SearchPage> {
             child: _buildCustomAppBarWithSearchBar(context),
           ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: Styles.customColor,
+        onPressed: () => showCartBottomSheet(context),
+        child: const Icon(
+          Icons.shopping_cart_outlined,
+          size: 24,
+          color: Colors.white,
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+
+      bottomNavigationBar: AnimatedBottomNavigationBar.builder(
+        height: 80,
+        itemCount: iconList.length,
+        tabBuilder: (int index, bool isActive) {
+          final color = !isActive ? Colors.white54 : Colors.white;
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const SizedBox(height: 10),
+              Icon(
+                iconList[index],
+                size: 24,
+                color: color,
+              ),
+              const SizedBox(height: 4),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: Text(
+                  index == 0
+                      ? "Home"
+                      : index == 1
+                      ? "Search"
+                      : index == 2
+                      ? "Account"
+                      : "Favorite",
+                  maxLines: 1,
+                  style: TextStyle(color: color),
+                ),
+              )
+            ],
+          );
+        },
+        backgroundColor: Styles.customColor,
+        activeIndex: currentIndexBottomBar,
+        splashColor: customColor,
+        splashSpeedInMilliseconds: 300,
+        notchSmoothness: NotchSmoothness.softEdge,
+        gapLocation: GapLocation.center,
+        leftCornerRadius: 32,
+        rightCornerRadius: 32,
+        onTap: (index) {
+          setState(() => currentIndexBottomBar = index);
+
+          // Navigation logic based on the selected tab index
+          switch (index) {
+            case 0:
+              Navigator.pushReplacementNamed(context, '/home'); // Navigate to Home
+              break;
+            case 1:
+              Navigator.pushReplacementNamed(context, '/cart'); // Navigate to Cart
+              break;
+            case 2:
+              Navigator.pushReplacementNamed(context, '/account'); // Navigate to Account
+              break;
+            case 3:
+              Navigator.pushReplacementNamed(context, '/settings'); // Navigate to Settings
+              break;
+          }
+        },
       ),
     );
   }
@@ -130,6 +206,14 @@ class _SearchPage extends State<SearchPage> {
           ),
         ],
       ),
+    );
+  }
+  void showCartBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => CartBottomSheet(),
     );
   }
 }

@@ -37,7 +37,7 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => UserProvider()),
-        ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider(create: (context) => ThemeProvider()),
       ],
       child: const MyApp(),
     ),
@@ -49,7 +49,8 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final themeProvider = Provider.of<ThemeProvider>(context);
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+    themeProvider.setThemeMode(context);
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Alwanoh Store',
@@ -63,7 +64,7 @@ class MyApp extends StatelessWidget {
         '/home': (context) => Home(),
         '/cart': (context) => SearchPage(),
         '/account': (context) => PersonalScreenWidget(),
-        '/settings': (context) => PaymentPage(),
+        '/settings': (context) => FavoritePage(),
       },
 
     );

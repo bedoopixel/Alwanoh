@@ -172,17 +172,13 @@ class _FinalProducts extends State<FinalProducts> {
                                     ),
                                   );
                                 },
-                                child: Card(
+                                child:  Card(
                                   elevation: 5,
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(15.0),
-                                    side: BorderSide(
-                                      color:Styles.customColor,
-                                      width: 2.0,
-                                    ),
+                                    borderRadius: BorderRadius.circular(20.0),
                                   ),
                                   color:themeProvider.themeMode == ThemeMode.dark
-                                      ? Styles.darkBackground // Dark mode background
+                                      ? Styles.darkcardBackground // Dark mode background
                                       : Styles.lightBackground,
                                   child: Stack(
                                     children: [
@@ -205,10 +201,10 @@ class _FinalProducts extends State<FinalProducts> {
                                                           height: imageHeight,
                                                           decoration: BoxDecoration(
                                                             color: Styles.customColor.withOpacity(0.5),
-                                                            borderRadius: BorderRadius.circular(10.0),
+                                                            borderRadius: BorderRadius.circular(20.0),
                                                           ),
                                                           child: ClipRRect(
-                                                            borderRadius: BorderRadius.circular(10.0),
+                                                            borderRadius: BorderRadius.circular(20.0),
                                                             child: Opacity(
                                                               opacity: 0.7,
                                                               child: Image.network(
@@ -225,7 +221,7 @@ class _FinalProducts extends State<FinalProducts> {
                                                   ),
                                                   if (discount.isNotEmpty)
                                                     Positioned(
-                                                      bottom: 30.0,
+                                                      bottom: 20.0,
                                                       right: 18.0,
                                                       child: Container(
                                                         padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
@@ -234,7 +230,7 @@ class _FinalProducts extends State<FinalProducts> {
                                                           borderRadius: BorderRadius.circular(12.0),
                                                         ),
                                                         child: Text(
-                                                          '$discount% Off',
+                                                          '$discount% ',
                                                           style: const TextStyle(
                                                             color: Colors.white,
                                                             fontWeight: FontWeight.bold,
@@ -292,86 +288,104 @@ class _FinalProducts extends State<FinalProducts> {
                                           ),
 
                                           Padding(
-                                            padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 0.0),
-                                            child: Row(
-                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            padding: const EdgeInsets.only(left: 15),
+                                            child: Column(
+                                              mainAxisAlignment: MainAxisAlignment.start,
+
                                               children: [
-                                                Container(
-                                                  child: Row(
-                                                    mainAxisAlignment: MainAxisAlignment.start,
-                                                    children: [
-                                                      Icon(
-                                                        parsedRating > 0 ? Icons.star_rounded : Icons.star_border_rounded,
+                                                Row(
+                                                  mainAxisAlignment: MainAxisAlignment.start,
+                                                  children: [
+                                                    Icon(
+                                                      parsedRating > 0 ? Icons.star_rounded : Icons.star_border_rounded,
+                                                      color: Styles.customColor,
+                                                      size: 20,
+                                                    ),
+                                                    SizedBox(width: 3),
+                                                    Text(
+                                                      '$parsedRating.5',
+                                                      style: TextStyle(
+                                                        fontSize: 13.0,
+                                                        fontWeight: FontWeight.bold,
                                                         color: Styles.customColor,
-                                                        size: 20,
                                                       ),
-                                                      SizedBox(width: 3),
-                                                      Text(
-                                                        '$parsedRating.5',
-                                                        style: TextStyle(
-                                                          fontSize: 13.0,
-                                                          fontWeight: FontWeight.bold,
-                                                          color: Styles.customColor,
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
+                                                    ),
+                                                  ],
                                                 ),
-                                                Container(
-                                                  child: Row(
-                                                    mainAxisAlignment: MainAxisAlignment.end,
-                                                    children: [
-                                                      Text(
-                                                        type,
-                                                        style: TextStyle(
-                                                          fontSize: 12.0,
-                                                          fontWeight: FontWeight.bold,
-                                                          color: Styles.customColor,
-                                                        ),
+                                                SizedBox(height: 5,),
+                                                Row(
+                                                  mainAxisAlignment: MainAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      type,
+                                                      style: TextStyle(
+                                                        color:themeProvider.themeMode == ThemeMode.dark
+                                                            ? Styles.lightBackground // Dark mode background
+                                                            : Styles.darkBackground,
+                                                        fontSize: fontSize +2,
                                                       ),
-                                                    ],
-                                                  ),
+                                                    ),
+                                                  ],
                                                 ),
+                                                SizedBox(height: 5,),
+                                                Row(
+                                                  mainAxisAlignment: MainAxisAlignment.start,
+
+                                                  children: [
+                                                    Text(
+                                                      name,
+                                                      style: TextStyle(
+                                                        color:themeProvider.themeMode == ThemeMode.dark
+                                                            ? Styles.lightBackground // Dark mode background
+                                                            : Styles.darkBackground,
+                                                        fontSize: fontSize +2,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                                SizedBox(height: 5,),
+                                                Row(
+                                                  mainAxisAlignment: MainAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                          () {
+                                                        // Ensure we are not null and handle the quantities map and activeQuantity safely
+                                                        if (product['quantities'] != null && product['activeQuantity'] != null) {
+                                                          final activeQuantity = product['activeQuantity'].toString(); // Ensure activeQuantity is a String
+                                                          final quantities = product['quantities'] as Map<dynamic, dynamic>; // Handle dynamic keys and values
+
+                                                          // Check if the quantities map contains the activeQuantity key
+                                                          if (quantities.containsKey(activeQuantity)) {
+                                                            final activePrice = quantities[activeQuantity]; // Get the price for activeQuantity
+                                                            if (activePrice is num) {
+                                                              return '${activePrice.toStringAsFixed(0)}\$'; // Return the price as a string with fixed decimals
+                                                            }
+                                                          }
+                                                        }
+                                                        // Fallback to discounted price or regular price
+                                                        return discountedPrice != null
+                                                            ? '${discountedPrice.toStringAsFixed(0)}\$'
+                                                            : '${price?.toStringAsFixed(0) ?? '0.00'}\$';
+                                                      }(),
+                                                      style: TextStyle(
+                                                        color: themeProvider.themeMode == ThemeMode.dark
+                                                            ? Styles.lightBackground // Dark mode background
+                                                            : Styles.darkBackground,
+                                                        fontWeight: FontWeight.bold,
+                                                        fontSize: fontSize + 4, // Slightly larger for price
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                                SizedBox(height: 5,),
+
                                               ],
-                                            ),
-                                          ),
-                                          Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: Text(
-                                              name,
-                                              style: TextStyle(
-                                                color:themeProvider.themeMode == ThemeMode.dark
-                                                    ? Styles.lightBackground // Dark mode background
-                                                    : Styles.darkBackground,
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: fontSize,
-                                              ),
-                                            ),
-                                          ),
-                                          Container(
-                                            width: double.infinity,
-                                            decoration: BoxDecoration(
-                                              color: Styles.customColor,
-                                              borderRadius: BorderRadius.vertical(bottom: Radius.circular(15.0)),
-                                            ),
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: Center(
-                                              child: Text(
-                                                discountedPrice != null
-                                                    ? '\YR ${discountedPrice.toStringAsFixed(0)}'
-                                                    : '\YR ${price?.toStringAsFixed(0) ?? ''}',
-                                                style: TextStyle(
-                                                  color: Colors.white,
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: fontSize + 8, // Slightly larger for price
-                                                ),
-                                              ),
                                             ),
                                           ),
                                         ],
                                       ),
                                       Positioned(
-                                        top: 8.0,
+                                        top: 2.0,
                                         right: 8.0,
                                         child: IconButton(
                                           icon: Icon(

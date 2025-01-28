@@ -9,9 +9,8 @@ import 'PaymentMethodPage.dart';
 
 class DeliveryMethodPage extends StatefulWidget {
   final List<dynamic> cartItems; // Accepting cart items
-  final String selectedPaymentMethod; // Accepting selected payment method
 
-  DeliveryMethodPage({Key? key, required this.cartItems, required this.selectedPaymentMethod}) : super(key: key);
+  DeliveryMethodPage({Key? key, required this.cartItems,  }) : super(key: key);
   @override
   _DeliveryMethodPageState createState() => _DeliveryMethodPageState();
 }
@@ -79,7 +78,6 @@ class _DeliveryMethodPageState extends State<DeliveryMethodPage> {
                       MaterialPageRoute(
                         builder: (context) => SelectAddressPage(
                           cartItems: widget.cartItems, // Pass cartItems
-                          selectedPaymentMethod: widget.selectedPaymentMethod, // Pass selectedPaymentMethod
                           selectedDeliveryMethod: _selectedDeliveryMethod!,),
                       ),
                     );

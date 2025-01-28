@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:url_launcher/url_launcher.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 class PaymentPage extends StatefulWidget {
@@ -25,14 +24,13 @@ class _PaymentPageState extends State<PaymentPage> {
       "currency": "USD", // Replace with your currency
       "description": "Test Payment",
       "customer": {
-        "first_name": "John",
-        "last_name": "Doe",
+        "name": "John",
         "email": "john.doe@example.com",
         "phone": {"country_code": "965", "number": "12345678"}
       },
       "source": {"id": "src_all"}, // For test purposes, allow all sources
       "redirect": {
-        "url": "https://api.tap.compchargesany/v2/" // Replace with your redirect URL
+        "url": "https://api.tap.company/v2/charges/" // Replace with your redirect URL
       }
     });
 

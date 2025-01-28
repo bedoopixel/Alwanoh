@@ -63,8 +63,8 @@ class _HomeState extends State<Home> {
             children: [
               Image.asset(
                 'assets/app_icon.png', // Path to your internal image
-                width: 65, // Adjust the width of the icon as needed
-                height: 65, // Adjust the height of the icon as needed
+                width: 60, // Adjust the width of the icon as needed
+                height: 60, // Adjust the height of the icon as needed
               ),
               SizedBox(width: 10),
               Container(
